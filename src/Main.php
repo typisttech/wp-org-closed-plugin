@@ -12,6 +12,9 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Plugin\PreCommandRunEvent;
+use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser\DownloadUrlParser;
+use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser\MultiUrlParser;
+use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser\SvnUrlParser;
 
 class Main implements EventSubscriberInterface, PluginInterface
 {
@@ -21,7 +24,18 @@ class Main implements EventSubscriberInterface, PluginInterface
 
     public function activate(Composer $composer, IOInterface $io): void
     {
-        $this->packageEventHandler = new PackageEventHandler;
+        $loop = $composer->getLoop();
+
+        $urlParser = new MultiUrlParser(
+            new DownloadUrlParser,
+            new SvnUrlParser,
+        );
+
+        $client = new WpOrg\Api\Client(
+            $loop->getHttpDownloader(),
+        );
+
+        $this->packageEventHandler = new PackageEventHandler($urlParser, $client, $loop);
         $this->commandEventHandler = new CommandEventHandler($io);
     }
 

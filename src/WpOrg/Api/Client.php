@@ -9,9 +9,8 @@ use Composer\Util\HttpDownloader;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 use Throwable;
-use UnexpectedValueException;
 
-use function React\Promise\reject;
+use function React\Promise\resolve;
 
 readonly class Client
 {
@@ -22,13 +21,13 @@ readonly class Client
     ) {}
 
     /**
-     * @return PromiseInterface<string|null>
+     * @return PromiseInterface<bool>
      */
-    public function asyncFetchClosedDescription(string $slug): PromiseInterface
+    public function isClosedAsync(string $slug): PromiseInterface
     {
         $slug = trim($slug);
         if (empty($slug)) {
-            return reject(new UnexpectedValueException('Argument $slug may not be empty.'));
+            return resolve(false);
         }
 
         $url = sprintf(
@@ -53,7 +52,7 @@ readonly class Client
                 }
 
                 return $e->getResponse();
-            })->then(static function (string $body) use ($slug): ?string {
+            })->then(static function (string $body) use ($slug): true {
                 $json = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
 
                 $error = $json['error'] ?? null;
@@ -63,15 +62,7 @@ readonly class Client
                     );
                 }
 
-                $description = $json['description'] ?? null;
-                if (! is_string($description)) {
-                    return self::DEFAULT_CLOSED_DESCRIPTION;
-                }
-                if (empty($description)) {
-                    return self::DEFAULT_CLOSED_DESCRIPTION;
-                }
-
-                return $description;
-            });
+                return true;
+            })->catch(static fn () => false);
     }
 }

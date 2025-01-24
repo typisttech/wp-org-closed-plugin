@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TypistTech\WpSecAdvi\WpOrgClosedPlugin\WPOrg\UrlParser;
+namespace TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser;
 
 /**
  * Extract slug from download URLs.

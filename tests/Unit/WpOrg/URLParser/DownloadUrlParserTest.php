@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\WpOrg\UrlParser;
 
-use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WPOrg\UrlParser\DownloadUrlParser;
-use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WPOrg\UrlParser\UrlParserInterface;
+use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser\DownloadUrlParser;
+use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser\UrlParserInterface;
 
 covers(DownloadUrlParser::class);
 

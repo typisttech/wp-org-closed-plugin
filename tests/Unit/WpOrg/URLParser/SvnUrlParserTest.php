@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\WpOrg\UrlParser;
 
-use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WPOrg\UrlParser\SvnUrlParser;
-use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WPOrg\UrlParser\UrlParserInterface;
+use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser\SvnUrlParser;
+use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser\UrlParserInterface;
 
 covers(SvnUrlParser::class);
 
