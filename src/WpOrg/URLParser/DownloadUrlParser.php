@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace TypistTech\WpSecAdvi\WpOrgClosedPlugin\WPOrg\UrlParser;
 
 /**
- * Extract slug from dist URL.
+ * Extract slug from download URLs.
  *
- * Dist URLs look like:
+ * Download URLs look like:
  *   - https://downloads.wordpress.org/plugin/my-awesome-plugin.1.2.3.zip
  *   - https://downloads.wordpress.org/plugin/my-awesome-plugin.1.0-beta.zip
  *   - https://downloads.wordpress.org/plugin/my-awesome-plugin.zip
  *   - https://downloads.wordpress.org/plugins/my-awesome-plugin.zip
  *   - https://downloads.wordpress.org/plugins/myawesomeplugin.zip
+ *   - https://downloads.wordpress.org/plugins/myawesomeplugin.zip/
  */
-readonly class DistUrlParser implements UrlParserInterface
+readonly class DownloadUrlParser implements UrlParserInterface
 {
     private const string HOST = 'downloads.wordpress.org';
 
@@ -29,6 +30,9 @@ readonly class DistUrlParser implements UrlParserInterface
         if (!is_string($path)) {
             return null;
         }
+
+        $path = rtrim($path, '/');
+
         if (!str_ends_with($path, '.zip')) {
             return null;
         }
