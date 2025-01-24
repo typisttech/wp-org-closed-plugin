@@ -61,7 +61,9 @@
     "test": [
       "@composer normalize --dry-run",
       "pint --test",
-      "XDEBUG_MODE=off pest"
-    ]
+      "XDEBUG_MODE=off pest",
+      "@testscript"
+    ],
+    "testscript": "find testdata/script -type f -name '*.txtar' -exec testscript -e PWD=$(pwd) {} +"
   }
 }
