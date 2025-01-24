@@ -23,7 +23,7 @@ readonly class SvnUrlParser implements UrlParserInterface
         }
 
         $path = parse_url($url, PHP_URL_PATH);
-        if (!is_string($path)) {
+        if (! is_string($path)) {
             return null;
         }
 

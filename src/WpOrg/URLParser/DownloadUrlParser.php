@@ -27,13 +27,13 @@ readonly class DownloadUrlParser implements UrlParserInterface
         }
 
         $path = parse_url($url, PHP_URL_PATH);
-        if (!is_string($path)) {
+        if (! is_string($path)) {
             return null;
         }
 
         $path = rtrim($path, '/');
 
-        if (!str_ends_with($path, '.zip')) {
+        if (! str_ends_with($path, '.zip')) {
             return null;
         }
         if (substr_count($path, '/') !== 2) {

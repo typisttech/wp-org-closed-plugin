@@ -60,7 +60,7 @@ describe(SvnUrlParser::class, static function (): void {
             ];
         });
 
-        it('decode the plugin slug', function (string $url, ?string $expected): void {
+        it('parses the plugin slug', function (string $url, ?string $expected): void {
             $parser = new SvnUrlParser;
 
             $actual = $parser->slug($url);
