@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace TypistTech\WpSecAdvi\WpOrgClosedPlugin;
 
 use Composer\Composer;
+use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
@@ -12,31 +14,20 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Plugin\PreCommandRunEvent;
-use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser\DownloadUrlParser;
-use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser\MultiUrlParser;
-use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser\SvnUrlParser;
 
 class Main implements EventSubscriberInterface, PluginInterface
 {
-    private PackageEventHandler $packageEventHandler;
+    private MarkClosedPluginAsAbandoned $markClosedAsAbandoned;
 
-    private CommandEventHandler $commandEventHandler;
+    private WarnLocked $warnLocked;
 
     public function activate(Composer $composer, IOInterface $io): void
     {
-        $loop = $composer->getLoop();
-
-        $urlParser = new MultiUrlParser(
-            new DownloadUrlParser,
-            new SvnUrlParser,
+        $this->markClosedAsAbandoned = MarkClosedPluginAsAbandoned::create(
+            $composer->getLoop(),
         );
 
-        $client = new WpOrg\Api\Client(
-            $loop->getHttpDownloader(),
-        );
-
-        $this->packageEventHandler = new PackageEventHandler($urlParser, $client, $loop);
-        $this->commandEventHandler = new CommandEventHandler($io);
+        $this->warnLocked = new WarnLocked($io);
     }
 
     public function deactivate(Composer $composer, IOInterface $io): void
@@ -52,19 +43,32 @@ class Main implements EventSubscriberInterface, PluginInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PackageEvents::PRE_PACKAGE_INSTALL => ['onPackageEvent', PHP_INT_MAX - 1000],
-            PackageEvents::PRE_PACKAGE_UPDATE => ['onPackageEvent', PHP_INT_MAX - 1000],
-            PluginEvents::PRE_COMMAND_RUN => ['onPreCommandRun', PHP_INT_MAX - 1000],
+            PackageEvents::PRE_PACKAGE_INSTALL => ['markClosedAsAbandoned', PHP_INT_MAX - 1000],
+            PackageEvents::PRE_PACKAGE_UPDATE => ['markClosedAsAbandoned', PHP_INT_MAX - 1000],
+
+            PluginEvents::PRE_COMMAND_RUN => ['warnLocked', PHP_INT_MAX - 1000],
         ];
     }
 
-    public function onPackageEvent(PackageEvent $event): void
+    public function markClosedAsAbandoned(PackageEvent $event): void
     {
-        $this->packageEventHandler->setAbandoned($event);
+        foreach ($event->getOperations() as $operation) {
+            $package = match (true) {
+                $operation instanceof InstallOperation => $operation->getPackage(),
+                $operation instanceof UpdateOperation => $operation->getTargetPackage(),
+                default => null,
+            };
+
+            if ($package === null) {
+                continue;
+            }
+
+            $this->markClosedAsAbandoned->__invoke($package);
+        }
     }
 
-    public function onPreCommandRun(PreCommandRunEvent $event): void
+    public function warnLocked(PreCommandRunEvent $event): void
     {
-        $this->commandEventHandler->warnLocked($event);
+        $this->warnLocked->__invoke($event);
     }
 }

@@ -7,13 +7,13 @@ namespace TypistTech\WpSecAdvi\WpOrgClosedPlugin;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PreCommandRunEvent;
 
-readonly class CommandEventHandler
+readonly class WarnLocked
 {
     public function __construct(
         private IOInterface $io,
     ) {}
 
-    public function warnLocked(PreCommandRunEvent $event): void
+    public function __invoke(PreCommandRunEvent $event): void
     {
         if ($event->getCommand() !== 'audit') {
             return;

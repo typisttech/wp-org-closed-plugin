@@ -12,12 +12,13 @@ use Throwable;
 
 use function React\Promise\resolve;
 
-readonly class Client
+class Client
 {
-    private const string DEFAULT_CLOSED_DESCRIPTION = 'This plugin has been closed on wordpress.org. Reason: Unknown.';
+    /** @var array<string, bool> */
+    private array $cache = [];
 
     public function __construct(
-        private HttpDownloader $httpDownloader,
+        private readonly HttpDownloader $httpDownloader,
     ) {}
 
     /**
@@ -30,18 +31,18 @@ readonly class Client
             return resolve(false);
         }
 
+        if (isset($this->cache[$slug])) {
+            return resolve($this->cache[$slug]);
+        }
+
         $url = sprintf(
             'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=%s',
             $slug,
         );
 
         return $this->httpDownloader->add($url)
-            ->then(static function () use ($slug): never {
-                // Closed plugins always return 404.
-                throw new RuntimeException(
-                    sprintf('%s is not a closed plugin.', $slug)
-                );
-            })->catch(static function (Throwable $e): string {
+            ->then(static fn () => throw new RuntimeException)
+            ->catch(static function (Throwable $e): string {
                 if (! $e instanceof TransportException) {
                     throw $e;
                 }
@@ -52,17 +53,16 @@ readonly class Client
                 }
 
                 return $e->getResponse();
-            })->then(static function (string $body) use ($slug): true {
+            })->then(function (string $body): true {
                 $json = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
-
                 $error = $json['error'] ?? null;
-                if ($error !== 'closed') {
-                    throw new RuntimeException(
-                        sprintf('%s is not found on wordpress.org.', $slug)
-                    );
-                }
 
-                return true;
-            })->catch(static fn () => false);
+                return $error === 'closed';
+            })->catch(static fn () => false)
+            ->then(function (bool $isClosed) use ($slug): bool {
+                $this->cache[$slug] = $isClosed;
+
+                return $isClosed;
+            });
     }
 }
