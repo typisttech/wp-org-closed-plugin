@@ -1,0 +1,45 @@
+exec composer config repositories.wp-org-closed-plugin path $PWD
+exec composer install
+
+exec composer audit --format=json
+
+cmp stdout golden.out
+
+-- composer.json --
+{
+    "name": "test/example",
+    "version": "0.0.1",
+    "require": {
+        "typisttech/wp-org-closed-plugin": "@dev",
+        "wpackagist-plugin/hello-dolly": "*"
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "wpackagist-plugin/hello-dolly",
+                "version": "1.6",
+                "source": {
+                    "type": "svn",
+                    "url": "https://plugins.svn.wordpress.org/hello-dolly/",
+                    "reference": "tags/1.6"
+                }
+            }
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "typisttech/wp-org-closed-plugin": true
+        },
+        "audit": {
+            "abandoned": "fail"
+        }
+    }
+}
+
+-- golden.out --
+{
+    "advisories": [],
+    "abandoned": []
+}

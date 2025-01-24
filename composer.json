@@ -1,0 +1,76 @@
+{
+    "name": "typisttech/wp-org-closed-plugin",
+    "description": "Composer plugin to mark package as abandoned if closed on WordPress.org",
+    "license": "MIT",
+    "type": "composer-plugin",
+    "keywords": [
+        "abandoned",
+        "audit",
+        "security",
+        "wordpress"
+    ],
+    "authors": [
+        {
+            "name": "Typist Tech",
+            "homepage": "https://typist.tech"
+        },
+        {
+            "name": "Tang Rufus",
+            "email": "tangrufus@gmail.com",
+            "homepage": "https://tangrufus.com",
+            "role": "Developer"
+        }
+    ],
+    "homepage": "https://github.com/typisttech/wp-org-closed-plugin",
+    "support": {
+        "issues": "https://github.com/typisttech/wp-org-closed-plugin/issues",
+        "source": "https://github.com/typisttech/wp-org-closed-plugin",
+        "security": "https://github.com/typisttech/wp-org-closed-plugin/security"
+    },
+    "require": {
+        "php": "^8.3",
+        "composer-plugin-api": "^2.6"
+    },
+    "require-dev": {
+        "composer/composer": "^2.8",
+        "mockery/mockery": "^1.6",
+        "pestphp/pest": "^4.1",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-mockery": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "TypistTech\\WpOrgClosedPlugin\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "class": "TypistTech\\WpOrgClosedPlugin\\Plugin",
+        "plugin-modifies-downloads": true,
+        "plugin-optional": true
+    },
+    "scripts": {
+        "lint": [
+            "@composer normalize --dry-run",
+            "pint --test",
+            "phpstan analyse"
+        ],
+        "pest": "pest",
+        "pest:feature": "pest --group=feature",
+        "pest:unit": "pest --group=unit"
+    }
+}

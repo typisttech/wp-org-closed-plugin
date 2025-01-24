@@ -1,0 +1,133 @@
+name: Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    tags:
+      - '**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  php-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.php-matrix.outputs.versions }}
+      highest: ${{ steps.php-matrix.outputs.highest }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: composer.json
+          sparse-checkout-cone-mode: false
+
+      - uses: typisttech/php-matrix-action@v2
+        id: php-matrix
+
+  pest:
+    needs: php-matrix
+    strategy:
+      matrix:
+        php-version: ${{ fromJSON(needs.php-matrix.outputs.versions) }}
+        coverage: ['none']
+        exclude:
+          - php-version: ${{ needs.php-matrix.outputs.highest }}
+            coverage: 'none'
+        include:
+          - php-version: ${{ needs.php-matrix.outputs.highest }}
+            coverage: xdebug
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: ${{ matrix.coverage }}
+
+      - uses: ramsey/composer-install@v3
+
+      - run: composer pest:unit -- ${COVERAGE} --ci
+        env:
+          COVERAGE: ${{ matrix.coverage == 'xdebug' && '--coverage-clover coverage-unit.xml' || '' }}
+      - run: composer pest:feature -- ${COVERAGE} --ci
+        env:
+          COVERAGE: ${{ matrix.coverage == 'xdebug' && '--coverage-clover coverage-feature.xml' || '' }}
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.coverage == 'xdebug'
+        with:
+          name: coverage
+          path: coverage-*.xml
+
+  codecov:
+    needs: pest
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v5
+        with:
+          name: coverage
+
+      - uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          fail_ci_if_error: true
+          disable_search: true
+          files: coverage-unit.xml
+          flags: unit
+
+      - uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          fail_ci_if_error: true
+          disable_search: true
+          files: coverage-feature.xml
+          flags: feature
+
+  e2e:
+    name: e2e (PHP ${{ matrix.php-version }}, Composer ${{ matrix.composer-version }})
+    needs: php-matrix
+    strategy:
+      matrix:
+        php-version: ${{ fromJSON(needs.php-matrix.outputs.versions) }}
+        composer-version: ['2.6', '2.7', '2.8']
+    runs-on: ubuntu-latest
+    env:
+      GOFLAGS: '-mod=mod'
+    steps:
+      - run: sudo apt-get update
+      - run: sudo apt-get install --no-install-recommends --yes subversion
+
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer:${{ matrix.composer-version }}
+          coverage: 'none'
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: 'go.mod'
+
+      - run: go test -count=1 ./...
+
+  wait-for-all-tests:
+    needs:
+      - pest
+      - e2e
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 0

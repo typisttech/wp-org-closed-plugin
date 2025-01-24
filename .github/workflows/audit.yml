@@ -1,0 +1,26 @@
+name: Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '16 3 * * 1' # Weekly on Monday
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  php:
+    uses: typisttech/.github/.github/workflows/audit-php.yml@v3
+
+  go:
+    uses: typisttech/.github/.github/workflows/audit-go.yml@v3
