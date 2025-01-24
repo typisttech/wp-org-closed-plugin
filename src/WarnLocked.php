@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TypistTech\WpSecAdvi\WpOrgClosedPlugin;
+namespace TypistTech\WpOrgClosedPlugin;
 
 use Composer\IO\IOInterface;
 use Composer\Plugin\PreCommandRunEvent;
@@ -23,8 +23,6 @@ readonly class WarnLocked
             return;
         }
 
-        $this->io->writeError(
-            '<warning>typisttech\wpsecadvi-wp-org-closed-plugin skipped checking for closed plugins because the "--locked" option is in used.</warning>',
-        );
+        $this->io->warning('Skipped checking for closed plugins because of --locked.');
     }
 }

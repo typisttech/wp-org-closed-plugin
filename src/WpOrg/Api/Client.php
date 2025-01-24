@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\Api;
+namespace TypistTech\WpOrgClosedPlugin\WpOrg\Api;
 
 use Composer\Downloader\TransportException;
 use Composer\Util\HttpDownloader;
@@ -12,13 +12,10 @@ use Throwable;
 
 use function React\Promise\resolve;
 
-class Client
+readonly class Client
 {
-    /** @var array<string, bool> */
-    private array $cache = [];
-
     public function __construct(
-        private readonly HttpDownloader $httpDownloader,
+        private HttpDownloader $httpDownloader,
     ) {}
 
     /**
@@ -29,10 +26,6 @@ class Client
         $slug = trim($slug);
         if (empty($slug)) {
             return resolve(false);
-        }
-
-        if (isset($this->cache[$slug])) {
-            return resolve($this->cache[$slug]);
         }
 
         $url = sprintf(
@@ -58,11 +51,6 @@ class Client
                 $error = $json['error'] ?? null;
 
                 return $error === 'closed';
-            })->catch(static fn () => false)
-            ->then(function (bool $isClosed) use ($slug): bool {
-                $this->cache[$slug] = $isClosed;
-
-                return $isClosed;
-            });
+            })->catch(static fn () => false);
     }
 }

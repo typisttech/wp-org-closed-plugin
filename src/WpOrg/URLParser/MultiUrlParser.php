@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\UrlParser;
+namespace TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser;
 
 readonly class MultiUrlParser implements UrlParserInterface
 {

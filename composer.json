@@ -1,5 +1,5 @@
 {
-  "name": "typisttech/wpsecadvi-wp-org-closed-plugin",
+  "name": "typisttech/wp-org-closed-plugin",
   "description": "TODO",
   "license": "MIT",
   "type": "composer-plugin",
@@ -18,10 +18,10 @@
       "role": "Developer"
     }
   ],
-  "homepage": "https://github.com/typisttech/wpsecadvi-wp-org-closed-plugin",
+  "homepage": "https://github.com/typisttech/wp-org-closed-plugin",
   "support": {
-    "issues": "https://github.com/typisttech/wpsecadvi-wp-org-closed-plugin/issues",
-    "source": "https://github.com/typisttech/wpsecadvi-wp-org-closed-plugin"
+    "issues": "https://github.com/typisttech/wp-org-closed-plugin/issues",
+    "source": "https://github.com/typisttech/wp-org-closed-plugin"
   },
   "require": {
     "php": "^8.4",
@@ -34,7 +34,7 @@
   },
   "autoload": {
     "psr-4": {
-      "TypistTech\\WpSecAdvi\\WpOrgClosedPlugin\\": "src/"
+      "TypistTech\\WpOrgClosedPlugin\\": "src/"
     }
   },
   "autoload-dev": {
@@ -48,6 +48,11 @@
     },
     "sort-packages": true
   },
+  "extra": {
+    "class": "TypistTech\\WpOrgClosedPlugin\\Main",
+    "plugin-modifies-downloads": true,
+    "plugin-optional": true
+  },
   "scripts": {
     "pest": "pest",
     "pest:e2e": "XDEBUG_MODE=off pest --group=e2e",
@@ -58,10 +63,5 @@
       "pint --test",
       "XDEBUG_MODE=off pest"
     ]
-  },
-  "extra": {
-    "class": "TypistTech\\WpSecAdvi\\WpOrgClosedPlugin\\Main",
-    "plugin-modifies-downloads": true,
-    "plugin-optional": true
   }
 }

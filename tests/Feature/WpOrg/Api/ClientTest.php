@@ -6,7 +6,7 @@ namespace Tests\Feature\WpOrg\Api;
 
 use Composer\Factory;
 use Composer\IO\NullIO;
-use TypistTech\WpSecAdvi\WpOrgClosedPlugin\WpOrg\Api\Client;
+use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Client;
 
 covers(Client::class);
 
@@ -15,10 +15,17 @@ describe(Client::class, static function (): void {
         dataset('slugs', static function (): array {
             return [
                 // Closed.
-                'be_media_from_production' => ['be-media-from-production', true],
-                'better_delete_revision' => ['better-delete-revision', true],
-                'no_longer_in_directory' => ['no-longer-in-directory', true],
-                'paid_memberships_pro' => ['paid-memberships-pro', true],
+                'author_request_permanent' => ['paid-memberships-pro', true],
+                'author_request_permanent_2' => ['be-media-from-production', true],
+                'guideline_violation' => ['text-control', true],
+                'guideline_violation_permanent' => ['no-longer-in-directory', true],
+                'licensing-trademark-violation' => ['tiutiu-facebook-friends-widget', true],
+                'security_issue' => ['better-delete-revision', true],
+                'security_issue_2' => ['browser-bookmark', true],
+                'unknown' => ['rumgallery', true],
+                'unknown_permanent' => ['link-linker', true],
+                'unused' => ['auto-translator', true],
+                'unused_permanent' => ['spam-stopgap', true],
 
                 // Not closed.
                 'open' => ['hello-dolly', false],

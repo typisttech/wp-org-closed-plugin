@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TypistTech\WpSecAdvi\WpOrgClosedPlugin;
+namespace TypistTech\WpOrgClosedPlugin;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
@@ -23,9 +23,7 @@ class Main implements EventSubscriberInterface, PluginInterface
 
     public function activate(Composer $composer, IOInterface $io): void
     {
-        $this->markClosedAsAbandoned = MarkClosedPluginAsAbandoned::create(
-            $composer->getLoop(),
-        );
+        $this->markClosedAsAbandoned = MarkClosedPluginAsAbandoned::create($composer, $io);
 
         $this->warnLocked = new WarnLocked($io);
     }
@@ -52,19 +50,19 @@ class Main implements EventSubscriberInterface, PluginInterface
 
     public function markClosedAsAbandoned(PackageEvent $event): void
     {
-        foreach ($event->getOperations() as $operation) {
-            $package = match (true) {
-                $operation instanceof InstallOperation => $operation->getPackage(),
-                $operation instanceof UpdateOperation => $operation->getTargetPackage(),
-                default => null,
-            };
+        $operation = $event->getOperation();
 
-            if ($package === null) {
-                continue;
-            }
+        $package = match (true) {
+            $operation instanceof InstallOperation => $operation->getPackage(),
+            $operation instanceof UpdateOperation => $operation->getTargetPackage(),
+            default => null,
+        };
 
-            $this->markClosedAsAbandoned->__invoke($package);
+        if ($package === null) {
+            return;
         }
+
+        $this->markClosedAsAbandoned->__invoke($package);
     }
 
     public function warnLocked(PreCommandRunEvent $event): void
