@@ -1,0 +1,30 @@
+name: Composer Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 3 * * 1' # Weekly on Monday
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/composer-audit.yml
+      - composer.*
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/composer-audit.yml
+      - composer.*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  composer-audit:
+    uses: typisttech/.github/.github/workflows/composer-audit.yml@v2
+    permissions:
+      contents: read

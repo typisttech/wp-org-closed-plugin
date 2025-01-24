@@ -1,0 +1,104 @@
+name: Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  pest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - dependency-versions: lowest
+            coverage: none
+          - dependency-versions: highest
+            coverage: xdebug
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: ${{ matrix.coverage }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: ${{ matrix.dependency-versions }}
+          composer-options: --no-audit --optimize-autoloader
+
+      # TODO: `--fail-on-incomplete` doesn't fail
+      # See: https://github.com/pestphp/pest/issues/1328
+      - run: composer pest:unit -- --coverage-clover coverage-unit.xml --ci --bail --stop-on-incomplete --fail-on-incomplete
+      - run: composer pest:feature -- --coverage-clover coverage-feature.xml --ci --bail --stop-on-incomplete --fail-on-incomplete
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.coverage == 'xdebug'
+        with:
+          name: coverage
+          path: |
+            coverage-unit.xml
+            coverage-feature.xml
+
+  e2e:
+    needs: pest
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dependency-versions: [lowest, highest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: ${{ matrix.dependency-versions }}
+          composer-options: --no-audit --optimize-autoloader
+
+      # TODO: `--fail-on-incomplete` doesn't fail
+      # See: https://github.com/pestphp/pest/issues/1328
+      - run: composer pest:e2e -- --ci --bail --stop-on-incomplete --fail-on-incomplete
+
+  codecov:
+    needs: pest
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage
+
+      - uses: codecov/codecov-action@v5
+        with:
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+          fail_ci_if_error: true
+          disable_search: true
+          files: coverage-unit.xml
+          flags: unit
+      - uses: codecov/codecov-action@v5
+        with:
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+          fail_ci_if_error: true
+          disable_search: true
+          files: coverage-feature.xml
+          flags: feature

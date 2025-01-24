@@ -1,0 +1,27 @@
+name: Pint
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pint.yml
+      - '**.php'
+      - composer.*
+      - pint.json
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  pint:
+    uses: typisttech/.github/.github/workflows/pint.yml@v2
+    permissions:
+      contents: read
+    with:
+      php-version: '8.4'
+    secrets: inherit

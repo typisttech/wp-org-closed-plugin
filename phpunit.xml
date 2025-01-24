@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Test Suite">
+            <directory suffix="Test.php">./tests</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory suffix=".php">./app</directory>
+            <directory suffix=".php">./src</directory>
+        </include>
+    </source>
+
+<!--    <php>-->
+<!--        &lt;!&ndash; Height of the terminal &ndash;&gt;-->
+<!--        <env name="LINES" value="50" force="true"/>-->
+<!--        &lt;!&ndash; Width of the terminal &ndash;&gt;-->
+<!--        <env name="COLUMNS" value="80" force="true"/>-->
+<!--    </php>-->
+</phpunit>

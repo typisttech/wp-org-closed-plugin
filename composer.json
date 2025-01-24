@@ -1,0 +1,67 @@
+{
+  "name": "typisttech/wpsecadvi-wp-org-closed-plugin",
+  "description": "TODO",
+  "license": "MIT",
+  "type": "composer-plugin",
+  "keywords": [
+    "TODO"
+  ],
+  "authors": [
+    {
+      "name": "Typist Tech",
+      "homepage": "https://typist.tech"
+    },
+    {
+      "name": "Tang Rufus",
+      "email": "tangrufus@gmail.com",
+      "homepage": "https://tangrufus.com",
+      "role": "Developer"
+    }
+  ],
+  "homepage": "https://github.com/typisttech/wpsecadvi-wp-org-closed-plugin",
+  "support": {
+    "issues": "https://github.com/typisttech/wpsecadvi-wp-org-closed-plugin/issues",
+    "source": "https://github.com/typisttech/wpsecadvi-wp-org-closed-plugin"
+  },
+  "require": {
+    "php": "^8.4",
+    "composer-plugin-api": "^2.6"
+  },
+  "require-dev": {
+    "composer/composer": "^2.8",
+    "pestphp/pest": "^3.7",
+    "roave/security-advisories": "dev-latest"
+  },
+  "autoload": {
+    "psr-4": {
+      "TypistTech\\WpSecAdvi\\WpOrgClosedPlugin\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "pest": "pest",
+    "pest:e2e": "XDEBUG_MODE=off pest --group=e2e",
+    "pest:feature": "pest --group=feature",
+    "pest:unit": "pest --group=unit",
+    "test": [
+      "@composer normalize --dry-run",
+      "pint --test",
+      "XDEBUG_MODE=off pest"
+    ]
+  },
+  "extra": {
+    "class": "TypistTech\\WpSecAdvi\\WpOrgClosedPlugin\\Main",
+    "plugin-modifies-downloads": true,
+    "plugin-optional": true
+  }
+}

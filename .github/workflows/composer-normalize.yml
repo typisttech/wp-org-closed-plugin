@@ -1,0 +1,23 @@
+name: Composer Normalize
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/composer-normalize.yml
+      - composer.*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  composer-normalize:
+    uses: typisttech/.github/.github/workflows/composer-normalize.yml@v2
+    permissions:
+      contents: read
+    secrets: inherit
