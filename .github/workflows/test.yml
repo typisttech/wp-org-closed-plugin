@@ -53,7 +53,7 @@ jobs:
             coverage-unit.xml
             coverage-feature.xml
 
-  e2e:
+  testscript:
     needs: pest
     runs-on: ubuntu-latest
     strategy:
@@ -74,9 +74,9 @@ jobs:
           dependency-versions: ${{ matrix.dependency-versions }}
           composer-options: --no-audit --optimize-autoloader
 
-      # TODO: `--fail-on-incomplete` doesn't fail
-      # See: https://github.com/pestphp/pest/issues/1328
-      - run: composer pest:e2e -- --ci --bail --stop-on-incomplete --fail-on-incomplete
+      # TODO: Install github.com/rogpeppe/go-internal/cmd/testscript
+
+      - run: composer testscript
 
   codecov:
     needs: pest
