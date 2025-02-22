@@ -3,7 +3,7 @@ name: Composer Audit
 on:
   workflow_dispatch:
   schedule:
-    - cron: '23 3 * * 1' # Weekly on Monday
+    - cron: '12 3 * * 1' # Weekly on Monday
   pull_request:
     branches:
       - main
