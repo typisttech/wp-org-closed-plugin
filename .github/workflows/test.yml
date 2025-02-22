@@ -38,7 +38,7 @@ jobs:
       - uses: ramsey/composer-install@v3
         with:
           dependency-versions: ${{ matrix.dependency-versions }}
-          composer-options: --no-audit --optimize-autoloader
+          composer-options: --no-audit # --optimize-autoloader
 
       # TODO: `--fail-on-incomplete` doesn't fail
       # See: https://github.com/pestphp/pest/issues/1328
