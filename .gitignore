@@ -1,5 +1,5 @@
-### Composer template
-composer.phar
-composer.lock
-/vendor/
+# Composer
+/vendor
+
+# Pest
 /coverage*.xml
