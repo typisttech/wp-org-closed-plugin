@@ -1,2 +1,0 @@
-fixes:
-  - "wp-org-closed-plugin/::" # reduce root e.g., "wp-org-closed-plugin/src/" => "src/"

@@ -14,7 +14,11 @@ permissions: {}
 
 jobs:
   release-drafter:
-    uses: typisttech/.github/.github/workflows/release-drafter.yml@v2
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: read
+    steps:
+      - uses: release-drafter/release-drafter@v6
+        env:
+          GITHUB_TOKEN: ${{ github.token }} # Not a typo.

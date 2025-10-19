@@ -1,0 +1,28 @@
+name: Lint
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  php:
+    uses: typisttech/.github/.github/workflows/lint-php.yml@v3
+
+  wait-for-all-lint:
+    needs:
+      - php
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 0
