@@ -21,7 +21,8 @@
   "homepage": "https://github.com/typisttech/wp-org-closed-plugin",
   "support": {
     "issues": "https://github.com/typisttech/wp-org-closed-plugin/issues",
-    "source": "https://github.com/typisttech/wp-org-closed-plugin"
+    "source": "https://github.com/typisttech/wp-org-closed-plugin",
+    "security": "https://github.com/typisttech/wp-org-closed-plugin/security"
   },
   "require": {
     "php": "^8.4",
