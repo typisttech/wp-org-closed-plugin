@@ -29,7 +29,7 @@
   },
   "require-dev": {
     "composer/composer": "^2.8",
-    "pestphp/pest": "^3.7",
+    "pestphp/pest": "^4.1",
     "roave/security-advisories": "dev-latest"
   },
   "autoload": {
