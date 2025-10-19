@@ -11,6 +11,7 @@ use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
+use Composer\Package\CompletePackageInterface;
 use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Plugin\PreCommandRunEvent;
@@ -58,7 +59,7 @@ class Main implements EventSubscriberInterface, PluginInterface
             default => null,
         };
 
-        if ($package === null) {
+        if (! $package instanceof CompletePackageInterface) {
             return;
         }
 

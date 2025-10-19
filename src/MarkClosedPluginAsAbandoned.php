@@ -73,12 +73,6 @@ readonly class MarkClosedPluginAsAbandoned
                     return null;
                 }
 
-                if ($package->isAbandoned()) {
-                    $this->io->debug("Skip marking <info>{$package->getPrettyName()}</info> as abandoned because it is already abandoned.");
-
-                    return null;
-                }
-
                 $this->io->debug(
                     "Marking <info>{$package->getPrettyName()}</info> as <error>abandoned</error> because <href=https://wordpress.org/plugins/{$slug}/>wordpress.org/plugins/{$slug}</> has been closed"
                 );

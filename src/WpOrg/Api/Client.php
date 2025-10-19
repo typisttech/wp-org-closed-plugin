@@ -24,7 +24,7 @@ readonly class Client
     public function isClosedAsync(string $slug): PromiseInterface
     {
         $slug = trim($slug);
-        if (empty($slug)) {
+        if ($slug === '') {
             return resolve(false);
         }
 
@@ -35,7 +35,7 @@ readonly class Client
 
         return $this->httpDownloader->add($url)
             ->then(static fn () => throw new RuntimeException)
-            ->catch(static function (Throwable $e): string {
+            ->catch(static function (Throwable $e): ?string {
                 if (! $e instanceof TransportException) {
                     throw $e;
                 }
@@ -46,7 +46,12 @@ readonly class Client
                 }
 
                 return $e->getResponse();
-            })->then(function (string $body): true {
+            })->then(static function (?string $body): bool {
+                if ($body === null) {
+                    return false;
+                }
+
+                /** @var array{error?: string} $json */
                 $json = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
                 $error = $json['error'] ?? null;
 

@@ -19,7 +19,8 @@ readonly class WarnLocked
             return;
         }
 
-        if (! $event->getInput()->getOption('locked')) {
+        $isLocked = (bool) $event->getInput()->getOption('locked');
+        if (! $isLocked) {
             return;
         }
 

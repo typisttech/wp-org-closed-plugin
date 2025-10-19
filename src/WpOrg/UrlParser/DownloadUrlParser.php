@@ -47,7 +47,8 @@ readonly class DownloadUrlParser implements UrlParserInterface
         }
 
         [$slug] = explode('.', $zip);
+        $slug = trim($slug);
 
-        return empty($slug) ? null : $slug;
+        return $slug === '' ? null : $slug;
     }
 }

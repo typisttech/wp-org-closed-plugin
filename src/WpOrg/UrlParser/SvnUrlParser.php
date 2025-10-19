@@ -28,7 +28,8 @@ readonly class SvnUrlParser implements UrlParserInterface
         }
 
         [, $slug] = explode('/', $path);
+        $slug = trim($slug);
 
-        return empty($slug) ? null : $slug;
+        return $slug === '' ? null : $slug;
     }
 }
