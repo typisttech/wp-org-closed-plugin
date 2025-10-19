@@ -30,6 +30,10 @@
   "require-dev": {
     "composer/composer": "^2.8",
     "pestphp/pest": "^4.1",
+    "phpstan/extension-installer": "^1.4",
+    "phpstan/phpstan": "^2.1",
+    "phpstan/phpstan-deprecation-rules": "^2.0",
+    "phpstan/phpstan-strict-rules": "^2.0",
     "roave/security-advisories": "dev-latest"
   },
   "autoload": {
@@ -44,7 +48,8 @@
   },
   "config": {
     "allow-plugins": {
-      "pestphp/pest-plugin": true
+      "pestphp/pest-plugin": true,
+      "phpstan/extension-installer": true
     },
     "sort-packages": true
   },
@@ -54,16 +59,13 @@
     "plugin-optional": true
   },
   "scripts": {
-    "pest": "pest",
-    "pest:e2e": "XDEBUG_MODE=off pest --group=e2e",
-    "pest:feature": "pest --group=feature",
-    "pest:unit": "pest --group=unit",
-    "test": [
+    "lint": [
       "@composer normalize --dry-run",
       "pint --test",
-      "XDEBUG_MODE=off pest",
-      "@testscript"
+      "phpstan analyse"
     ],
-    "testscript": "find testdata/script -type f -name '*.txtar' -exec testscript -e PWD=$(pwd) {} +"
+    "pest": "pest",
+    "pest:feature": "pest --group=feature",
+    "pest:unit": "pest --group=unit"
   }
 }
