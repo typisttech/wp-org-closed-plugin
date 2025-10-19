@@ -38,6 +38,9 @@ jobs:
       matrix:
         php-version: ${{ fromJSON(needs.php-matrix.outputs.versions) }}
         coverage: ['none']
+        exclude:
+          - php-version: ${{ needs.php-matrix.outputs.highest }}
+            coverage: 'none'
         include:
           - php-version: ${{ needs.php-matrix.outputs.highest }}
             coverage: xdebug
