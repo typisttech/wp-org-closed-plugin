@@ -1,0 +1,19 @@
+ARG composer=latest
+ARG php=8
+
+FROM composer/composer:${composer}-bin AS composer-bin
+
+FROM php:${php}-cli-alpine
+ENV PATH="/usr/local/go/bin:$PATH"
+ENV GOROOT=/usr/local/go
+
+COPY --from=composer-bin --link /composer /usr/local/bin/composer
+COPY --from=golang:1-alpine --link /usr/local/go /usr/local/go
+
+COPY go.mod go.sum /tmp-app/
+WORKDIR /tmp-app
+RUN go mod download && rm -rf /tmp-app
+
+WORKDIR /app
+
+CMD ["go", "test", "./..."]
