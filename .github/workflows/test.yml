@@ -107,6 +107,9 @@ jobs:
     env:
       GOFLAGS: '-mod=mod'
     steps:
+      - run: sudo apt-get update
+      - run: sudo apt-get install --no-install-recommends --yes subversion
+
       - uses: actions/checkout@v5
 
       - uses: shivammathur/setup-php@v2
