@@ -1,5 +1,6 @@
 # Composer
 /vendor
+/wp-content
 
 # Pest
 /coverage*.xml
