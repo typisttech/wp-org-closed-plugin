@@ -95,3 +95,27 @@ jobs:
           disable_search: true
           files: coverage-feature.xml
           flags: feature
+
+  e2e:
+    needs: php-matrix
+    strategy:
+      matrix:
+        php-version: ${{ fromJSON(needs.php-matrix.outputs.versions) }}
+        composer-version: ['2.6', '2.7', '2.8']
+    runs-on: ubuntu-latest
+    env:
+      GOFLAGS: '-mod=mod'
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer:${{ matrix.composer-version }}
+          coverage: 'none'
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: 'go.mod'
+
+      - run: go test -count=1 ./...
