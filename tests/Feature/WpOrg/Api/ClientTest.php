@@ -6,7 +6,11 @@ namespace Tests\Feature\WpOrg\Api;
 
 use Composer\Factory;
 use Composer\IO\NullIO;
+use Composer\Util\HttpDownloader;
+use Mockery;
 use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Client;
+
+use function React\Promise\resolve;
 
 covers(Client::class);
 
@@ -36,13 +40,9 @@ describe(Client::class, static function (): void {
             ];
         });
 
-        it('return true if and only if the plugin is closed', function (string $slug, bool $expected): void {
-            $loop = Factory::create(
-                new NullIO,
-                null,
-                true,
-                true,
-            )->getLoop();
+        it('returns true if and only if the plugin is closed', function (string $slug, bool $expected): void {
+            $loop = Factory::create(new NullIO, null, true, true)
+                ->getLoop();
 
             $client = new Client(
                 $loop->getHttpDownloader(),
@@ -53,5 +53,25 @@ describe(Client::class, static function (): void {
 
             expect($actual)->toBe($expected);
         })->with('slugs');
+
+        it('caches HTTP responses in memory', function (bool $isClosed): void {
+            $loop = Factory::create(new NullIO, null, true, true)
+                ->getLoop();
+
+            $httpDownloaderMock = Mockery::mock(HttpDownloader::class);
+            $httpDownloaderMock->allows()
+                ->add()
+                ->withAnyArgs()
+                ->andReturn(
+                    resolve($isClosed)
+                );
+
+            $client = new Client($httpDownloaderMock, $loop);
+
+            $client->isClosed('foo');
+            $client->isClosed('foo');
+
+            $httpDownloaderMock->shouldHaveReceived('add')->once();
+        })->with([true, false]);
     });
 });
