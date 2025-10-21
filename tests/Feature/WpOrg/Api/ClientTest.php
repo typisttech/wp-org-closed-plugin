@@ -26,6 +26,7 @@ describe(Client::class, static function (): void {
                 'unknown_permanent' => ['link-linker', true],
                 'unused' => ['auto-translator', true],
                 'unused_permanent' => ['spam-stopgap', true],
+                'unused_permanent_2' => ['update-linkroll', true],
 
                 // Not closed.
                 'open' => ['hello-dolly', false],

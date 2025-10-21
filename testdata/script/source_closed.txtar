@@ -11,14 +11,22 @@ cmp stdout golden.out
     "version": "0.0.1",
     "require": {
         "typisttech/wp-org-closed-plugin": "@dev",
-        "wpackagist-plugin/moody": "*"
+        "wpackagist-plugin/better-delete-revision": "*"
     },
-    "repositories": {
-        "wpackagist": {
-            "type": "composer",
-            "url": "https://wpackagist.org"
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "wpackagist-plugin/better-delete-revision",
+                "version": "1.0",
+                "source": {
+                    "type": "svn",
+                    "url": "https://plugins.svn.wordpress.org/better-delete-revision/",
+                    "reference": "tags/1.0"
+                }
+            }
         }
-    },
+    ],
     "config": {
         "allow-plugins": {
             "composer/installers": true,
@@ -34,6 +42,6 @@ cmp stdout golden.out
 {
     "advisories": [],
     "abandoned": {
-        "wpackagist-plugin/moody": null
+        "wpackagist-plugin/better-delete-revision": null
     }
 }

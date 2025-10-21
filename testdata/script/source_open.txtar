@@ -1,7 +1,7 @@
 exec composer config repositories.wp-org-closed-plugin path $PWD
 exec composer install
 
-! exec composer audit --format=json
+exec composer audit --format=json
 
 cmp stdout golden.out
 
@@ -11,14 +11,22 @@ cmp stdout golden.out
     "version": "0.0.1",
     "require": {
         "typisttech/wp-org-closed-plugin": "@dev",
-        "wpackagist-plugin/moody": "*"
+        "wpackagist-plugin/hello-dolly": "*"
     },
-    "repositories": {
-        "wpackagist": {
-            "type": "composer",
-            "url": "https://wpackagist.org"
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "wpackagist-plugin/hello-dolly",
+                "version": "1.7.3",
+                "source": {
+                    "type": "svn",
+                    "url": "https://plugins.svn.wordpress.org/hello-dolly/",
+                    "reference": "tags/1.7.3"
+                }
+            }
         }
-    },
+    ],
     "config": {
         "allow-plugins": {
             "composer/installers": true,
@@ -33,7 +41,5 @@ cmp stdout golden.out
 -- golden.out --
 {
     "advisories": [],
-    "abandoned": {
-        "wpackagist-plugin/moody": null
-    }
+    "abandoned": []
 }

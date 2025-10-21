@@ -1,5 +1,5 @@
-exec composer config --quiet repositories.wp-org-closed-plugin path $PWD
-exec composer install --quiet
+exec composer config repositories.wp-org-closed-plugin path $PWD
+exec composer install
 
 exec composer audit --format=json
 
@@ -8,9 +8,10 @@ cmp stdout golden.out
 -- composer.json --
 {
     "name": "test/example",
+    "version": "0.0.1",
     "require": {
         "typisttech/wp-org-closed-plugin": "@dev",
-        "wpackagist-plugin/two-factor": "0.11.0"
+        "wpackagist-plugin/hello-dolly": "*"
     },
     "repositories": {
         "wpackagist": {
