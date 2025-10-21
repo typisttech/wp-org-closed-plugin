@@ -119,3 +119,11 @@ jobs:
           go-version-file: 'go.mod'
 
       - run: go test -count=1 ./...
+
+  wait-for-all-tests:
+    needs:
+      - pest
+      - e2e
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 0
