@@ -7,7 +7,6 @@ namespace TypistTech\WpOrgClosedPlugin;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
-use Composer\Util\Loop;
 use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Client;
 use TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser\DownloadUrlParser;
 use TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser\MultiUrlParser;
@@ -27,8 +26,8 @@ readonly class MarkClosedPluginAsAbandoned
             ),
             new Client(
                 $loop->getHttpDownloader(),
+                $loop,
             ),
-            $loop,
             $io,
         );
     }
@@ -36,7 +35,6 @@ readonly class MarkClosedPluginAsAbandoned
     public function __construct(
         private UrlParserInterface $urlParser,
         private Client $client,
-        private Loop $loop,
         private IOInterface $io,
     ) {}
 
@@ -67,24 +65,18 @@ readonly class MarkClosedPluginAsAbandoned
             "Assuming <info>{$package->getPrettyName()}</info>'s <href=https://wordpress.org/plugins/{$slug}>wordpress.org</> slug is <comment>{$slug}</comment>"
         );
 
-        $promise = $this->client->isClosedAsync($slug)
-            ->then(function (bool $isClosed) use ($package, $slug): null {
-                if (! $isClosed) {
-                    return null;
-                }
+        $isClosed = $this->client->isClosed($slug);
+        if (! $isClosed) {
+            return;
+        }
 
-                $this->io->debug(
-                    "Marking <info>{$package->getPrettyName()}</info> as <error>abandoned</error> because <href=https://wordpress.org/plugins/{$slug}/>wordpress.org/plugins/{$slug}</> has been closed"
-                );
-                $package->setAbandoned(true);
-                $this->io->warning(
-                    "Package {$package->getPrettyName()} is abandoned, you should avoid using it. No replacement was suggested."
-                );
-
-                return null;
-            })->catch(static fn () => null);
-
-        $this->loop->wait([$promise]);
+        $this->io->debug(
+            "Marking <info>{$package->getPrettyName()}</info> as <error>abandoned</error> because <href=https://wordpress.org/plugins/{$slug}/>wordpress.org/plugins/{$slug}</> has been closed"
+        );
+        $package->setAbandoned(true);
+        $this->io->warning(
+            "Package {$package->getPrettyName()} is abandoned, you should avoid using it. No replacement was suggested."
+        );
     }
 
     private function slug(string ...$urls): ?string

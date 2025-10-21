@@ -11,7 +11,7 @@ use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Client;
 covers(Client::class);
 
 describe(Client::class, static function (): void {
-    describe('::isClosedAsync()', static function (): void {
+    describe('::isClosed()', static function (): void {
         dataset('slugs', static function (): array {
             return [
                 // Closed.
@@ -45,21 +45,13 @@ describe(Client::class, static function (): void {
             )->getLoop();
 
             $client = new Client(
-                $loop->getHttpDownloader()
+                $loop->getHttpDownloader(),
+                $loop,
             );
 
-            $result = (object) [
-                'actual' => null,
-            ];
+            $actual = $client->isClosed($slug);
 
-            $promise = $client->isClosedAsync($slug)
-                ->then(function (mixed $actual) use ($result): void {
-                    $result->actual = $actual;
-                });
-
-            $loop->wait([$promise]);
-
-            expect($result->actual)->toBe($expected);
+            expect($actual)->toBe($expected);
         })->with('slugs');
     });
 });
