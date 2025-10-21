@@ -8,7 +8,6 @@ cmp stdout golden.out
 -- composer.json --
 {
     "name": "test/example",
-    "version": "1.0.0",
     "require": {
         "typisttech/wp-org-closed-plugin": "@dev",
         "wpackagist-plugin/moody": "1.1"
