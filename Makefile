@@ -36,5 +36,5 @@ clean:
 	if test -z "$${IMAGE_IDS}"; then \
 		echo "Skip: No wp-org-closed-plugin images found."; \
 	else \
-		docker rmi $${IMAGE_IDS}; \
+		docker rmi --force $${IMAGE_IDS}; \
 	fi
