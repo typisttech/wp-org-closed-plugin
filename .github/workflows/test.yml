@@ -97,6 +97,7 @@ jobs:
           flags: feature
 
   e2e:
+    name: e2e (PHP ${{ matrix.php-version }}, Composer ${{ matrix.composer-version }})
     needs: php-matrix
     strategy:
       matrix:
