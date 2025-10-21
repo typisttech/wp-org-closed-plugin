@@ -16,8 +16,7 @@ func Test(t *testing.T) {
 				return err
 			}
 			env.Setenv("PWD", wd)
-
-			env.Setenv("COLUMNS", "120")
+			env.Setenv("COMPOSER_CACHE_DIR", "/dev/null")
 			return nil
 		},
 		UpdateScripts: os.Getenv("UPDATE_SCRIPTS") == "1",

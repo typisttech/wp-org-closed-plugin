@@ -1,13 +1,9 @@
-env COMPOSER_NO_INTERACTION=1
-env COMPOSER_CACHE_DIR=/dev/null
-
 exec composer config --quiet repositories.wp-org-closed-plugin path $PWD
 exec composer install --quiet
 
-exec composer audit
+exec composer audit --format=json
 
 cmp stdout golden.out
-cmp stderr golden.err
 
 -- composer.json --
 {
@@ -19,18 +15,24 @@ cmp stderr golden.err
     },
     "repositories": {
         "wpackagist": {
-            "type":"composer",
-            "url":"https://wpackagist.org"
+            "type": "composer",
+            "url": "https://wpackagist.org"
         }
     },
     "config": {
         "allow-plugins": {
             "composer/installers": true,
             "typisttech/wp-org-closed-plugin": true
+        },
+        "audit": {
+            "abandoned": "fail"
         }
     }
 }
 
+
 -- golden.out --
--- golden.err --
-No security vulnerability advisories found.
+{
+    "advisories": [],
+    "abandoned": []
+}
