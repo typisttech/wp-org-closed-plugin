@@ -29,7 +29,6 @@ cmp stdout golden.out
     }
 }
 
-
 -- golden.out --
 {
     "advisories": [],
