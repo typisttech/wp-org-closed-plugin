@@ -7,6 +7,7 @@ namespace TypistTech\WpOrgClosedPlugin\WpOrg\Api;
 use Composer\Downloader\TransportException;
 use Composer\Util\HttpDownloader;
 use Composer\Util\Loop;
+use Composer\Util\SyncHelper;
 use React\Promise\PromiseInterface;
 
 use function React\Promise\resolve;
@@ -22,6 +23,15 @@ class Client
 
     public function isClosed(string $slug): bool
     {
+        $slug = trim($slug);
+        if ($slug === '') {
+            return false;
+        }
+
+        if (array_key_exists($slug, $this->isClosed)) {
+            return $this->isClosed[$slug];
+        }
+
         $promise = $this->fetchIsClosedAsync($slug)
             ->then(fn (bool $isClosed) => $this->isClosed[$slug] = $isClosed);
 
