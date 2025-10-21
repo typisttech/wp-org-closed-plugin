@@ -1,0 +1,47 @@
+exec composer config repositories.wp-org-closed-plugin path $PWD
+exec composer install
+
+exec composer audit --locked --format=json
+
+cmp stdout golden.out
+cmp stderr golden.err
+
+-- composer.json --
+{
+    "name": "test/example",
+    "version": "0.0.1",
+    "require": {
+        "typisttech/wp-org-closed-plugin": "@dev",
+        "wpackagist-plugin/better-delete-revision": "*"
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "wpackagist-plugin/better-delete-revision",
+                "version": "1.0",
+                "dist": {
+                    "type": "zip",
+                    "url": "https://downloads.wordpress.org/plugin/better-delete-revision.1.0.zip"
+                }
+            }
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "typisttech/wp-org-closed-plugin": true
+        },
+        "audit": {
+            "abandoned": "fail"
+        }
+    }
+}
+
+-- golden.out --
+{
+    "advisories": [],
+    "abandoned": []
+}
+-- golden.err --
+Skipped checking for closed plugins because of --locked.
