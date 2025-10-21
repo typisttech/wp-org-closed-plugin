@@ -25,7 +25,7 @@
         "security": "https://github.com/typisttech/wp-org-closed-plugin/security"
     },
     "require": {
-        "php": "^8.4",
+        "php": "^8.3",
         "composer-plugin-api": "^2.6"
     },
     "require-dev": {
