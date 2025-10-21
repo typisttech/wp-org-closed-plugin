@@ -9,9 +9,6 @@ declare(strict_types=1);
 |
 */
 
-pest()->group('e2e')
-    ->in('E2E');
-
 pest()->group('feature')
     ->in('Feature');
 
@@ -52,8 +49,3 @@ pest()->group('unit')
 | global functions to help you to reduce the number of lines of code in your test files.
 |
 */
-
-function something()
-{
-    // ..
-}

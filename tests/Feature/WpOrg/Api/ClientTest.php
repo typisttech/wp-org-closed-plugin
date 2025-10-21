@@ -71,7 +71,8 @@ describe(Client::class, static function (): void {
             $client->isClosed('foo');
             $client->isClosed('foo');
 
-            $httpDownloaderMock->shouldHaveReceived('add')->once();
+            $httpDownloaderMock->shouldHaveReceived('add')
+                ->once();
         })->with([true, false]);
     });
 });

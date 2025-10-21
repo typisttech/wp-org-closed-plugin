@@ -13,6 +13,7 @@ use function React\Promise\resolve;
 
 class Client
 {
+    /** @var array<string, bool> */
     private array $isClosed = [];
 
     public function __construct(
