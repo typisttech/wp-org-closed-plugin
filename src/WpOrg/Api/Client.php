@@ -7,7 +7,6 @@ namespace TypistTech\WpOrgClosedPlugin\WpOrg\Api;
 use Composer\Downloader\TransportException;
 use Composer\Util\HttpDownloader;
 use Composer\Util\Loop;
-use Composer\Util\SyncHelper;
 use React\Promise\PromiseInterface;
 
 use function React\Promise\resolve;
