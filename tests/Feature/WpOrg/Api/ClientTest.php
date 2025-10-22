@@ -98,6 +98,6 @@ describe(Client::class, static function (): void {
             $httpDownloader->shouldNotHaveReceived('add');
             $cache->shouldNotHaveReceived('write');
             expect($actual)->toBe($expected);
-        })->with('slugs')->only();
+        })->with('slugs');
     });
 });

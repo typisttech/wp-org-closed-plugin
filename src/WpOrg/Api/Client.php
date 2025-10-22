@@ -30,12 +30,10 @@ class Client
         }
 
         $result = null;
-        $promise = $this->fetchIsClosedAsync($slug)
-            ->then(function (bool $isClosed) use (&$result, $slug): void {
-                $this->cache->write($slug, $isClosed);
+        $promise = $this->fetchAndCacheAsync($slug)
+            ->then(function (bool $isClosed) use (&$result): void {
                 $result = $isClosed;
             });
-
         $this->loop->wait([$promise]);
 
         /** @var bool */
@@ -45,7 +43,20 @@ class Client
     /**
      * @return PromiseInterface<bool>
      */
-    private function fetchIsClosedAsync(string $slug): PromiseInterface
+    private function fetchAndCacheAsync(string $slug): PromiseInterface
+    {
+        return $this->fetchAsync($slug)
+            ->then(function (bool $isClosed) use ($slug): bool {
+                $this->cache->write($slug, $isClosed);
+
+                return $isClosed;
+            });
+    }
+
+    /**
+     * @return PromiseInterface<bool>
+     */
+    private function fetchAsync(string $slug): PromiseInterface
     {
         $url = sprintf(
             'https://api.wordpress.org/plugins/info/1.2/?%s',
