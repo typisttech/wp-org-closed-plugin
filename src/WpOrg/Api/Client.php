@@ -9,16 +9,12 @@ use Composer\Util\HttpDownloader;
 use Composer\Util\Loop;
 use React\Promise\PromiseInterface;
 
-use function React\Promise\resolve;
-
 class Client
 {
-    /** @var array<string, bool> */
-    private array $isClosed = [];
-
     public function __construct(
         private readonly HttpDownloader $httpDownloader,
         private readonly Loop $loop,
+        private readonly Cache $cache,
     ) {}
 
     public function isClosed(string $slug): bool
@@ -28,16 +24,22 @@ class Client
             return false;
         }
 
-        if (array_key_exists($slug, $this->isClosed)) {
-            return $this->isClosed[$slug];
+        $cached = $this->cache->read($slug);
+        if ($cached !== null) {
+            return $cached;
         }
 
+        $result = null;
         $promise = $this->fetchIsClosedAsync($slug)
-            ->then(fn (bool $isClosed) => $this->isClosed[$slug] = $isClosed);
+            ->then(function (bool $isClosed) use (&$result, $slug): void {
+                $this->cache->write($slug, $isClosed);
+                $result = $isClosed;
+            });
 
         $this->loop->wait([$promise]);
 
-        return $this->isClosed[$slug];
+        /** @var bool */
+        return $result;
     }
 
     /**
@@ -45,11 +47,6 @@ class Client
      */
     private function fetchIsClosedAsync(string $slug): PromiseInterface
     {
-        $slug = trim($slug);
-        if ($slug === '') {
-            return resolve(false);
-        }
-
         $url = sprintf(
             'https://api.wordpress.org/plugins/info/1.2/?%s',
             http_build_query([

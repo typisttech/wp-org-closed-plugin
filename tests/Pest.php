@@ -10,6 +10,7 @@ declare(strict_types=1);
 */
 
 pest()->group('feature')
+    ->extend(\Tests\Feature\TestCase::class)
     ->in('Feature');
 
 pest()->group('unit')

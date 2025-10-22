@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace TypistTech\WpOrgClosedPlugin;
 
+use Composer\Cache;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
+use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Cache as ApiCache;
 use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Client;
 use TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser\DownloadUrlParser;
 use TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser\MultiUrlParser;
@@ -19,6 +21,11 @@ readonly class MarkClosedPluginAsAbandoned
     {
         $loop = $composer->getLoop();
 
+        $config = $composer->getConfig();
+        $cachePath = "{$config->get('cache-dir')}/wp-org-closed-plugin";
+        $cache = new Cache($io, $cachePath);
+        $cache->setReadOnly($config->get('cache-read-only'));
+
         return new self(
             new MultiUrlParser(
                 new DownloadUrlParser,
@@ -27,6 +34,7 @@ readonly class MarkClosedPluginAsAbandoned
             new Client(
                 $loop->getHttpDownloader(),
                 $loop,
+                new ApiCache($cache),
             ),
             $io,
         );

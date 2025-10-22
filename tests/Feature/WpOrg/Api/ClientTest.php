@@ -4,19 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Feature\WpOrg\Api;
 
-use Composer\Factory;
-use Composer\IO\NullIO;
-use Composer\Util\HttpDownloader;
 use Mockery;
+use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Cache;
 use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Client;
-
-use function React\Promise\resolve;
 
 covers(Client::class);
 
 describe(Client::class, static function (): void {
     describe('::isClosed()', static function (): void {
-        dataset('slugs', static function (): array {
+        dataset('many_slugs', static function (): array {
             return [
                 // Closed.
                 'author_request_permanent' => ['paid-memberships-pro', true],
@@ -40,39 +36,68 @@ describe(Client::class, static function (): void {
             ];
         });
 
-        it('returns true if and only if the plugin is closed', function (string $slug, bool $expected): void {
-            $loop = Factory::create(new NullIO, null, true, true)
-                ->getLoop();
+        dataset('slugs', static function (): array {
+            return [
+                // Closed.
+                'unused_permanent' => ['spam-stopgap', true],
+                // Not closed.
+                'open' => ['hello-dolly', false],
+            ];
+        });
 
-            $client = new Client(
-                $loop->getHttpDownloader(),
-                $loop,
-            );
+        it('returns true if and only if the plugin is closed', function (string $slug, bool $expected): void {
+            $loop = $this->loop();
+            $httpDownloader = $loop->getHttpDownloader();
+
+            $cache = Mockery::mock(Cache::class);
+            $cache->allows()
+                ->read()
+                ->withAnyArgs()
+                ->andReturnNull();
+            $cache->allows()
+                ->write()
+                ->withAnyArgs();
+
+            $client = new Client($httpDownloader, $loop, $cache);
 
             $actual = $client->isClosed($slug);
 
             expect($actual)->toBe($expected);
+        })->with('many_slugs');
+
+        it('writes to cache', function (string $slug, bool $expected): void {
+            $loop = $this->loop();
+            $httpDownloader = $loop->getHttpDownloader();
+            $cache = Mockery::spy(Cache::class);
+
+            $client = new Client($httpDownloader, $loop, $cache);
+
+            $actual = $client->isClosed($slug);
+
+            $cache->shouldHaveReceived('write', [$slug, $expected]);
+            expect($actual)->toBe($expected);
         })->with('slugs');
 
-        it('caches HTTP responses in memory', function (bool $isClosed): void {
-            $loop = Factory::create(new NullIO, null, true, true)
-                ->getLoop();
+        it('reads from cache', function (string $slug, bool $expected): void {
+            $loop = $this->loop();
 
-            $httpDownloaderMock = Mockery::mock(HttpDownloader::class);
-            $httpDownloaderMock->allows()
-                ->add()
-                ->withAnyArgs()
-                ->andReturn(
-                    resolve($isClosed)
-                );
+            $httpDownloader = Mockery::mock(
+                $loop->getHttpDownloader()
+            );
 
-            $client = new Client($httpDownloaderMock, $loop);
+            $cache = Mockery::spy(Cache::class);
+            $cache->allows()
+                ->read()
+                ->with($slug)
+                ->andReturn($expected);
 
-            $client->isClosed('foo');
-            $client->isClosed('foo');
+            $client = new Client($httpDownloader, $loop, $cache);
 
-            $httpDownloaderMock->shouldHaveReceived('add')
-                ->once();
-        })->with([true, false]);
+            $actual = $client->isClosed($slug);
+
+            $httpDownloader->shouldNotHaveReceived('add');
+            $cache->shouldNotHaveReceived('write');
+            expect($actual)->toBe($expected);
+        })->with('slugs')->only();
     });
 });
