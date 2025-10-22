@@ -34,6 +34,7 @@ class Cache
 
         $lines = explode("\n", $content);
 
+        // TODO: Ensure expected!
         return $lines[0] === 'closed';
     }
 
