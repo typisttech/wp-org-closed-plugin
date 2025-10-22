@@ -9,12 +9,12 @@ use Composer\Util\HttpDownloader;
 use Composer\Util\Loop;
 use React\Promise\PromiseInterface;
 
-class Client
+readonly class Client
 {
     public function __construct(
-        private readonly HttpDownloader $httpDownloader,
-        private readonly Loop $loop,
-        private readonly Cache $cache,
+        private HttpDownloader $httpDownloader,
+        private Loop $loop,
+        private Cache $cache,
     ) {}
 
     public function isClosed(string $slug): bool
