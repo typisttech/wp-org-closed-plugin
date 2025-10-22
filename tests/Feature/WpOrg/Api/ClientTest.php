@@ -86,7 +86,7 @@ describe(Client::class, static function (): void {
             );
 
             $cache = Mockery::spy(Cache::class);
-            $cache->allows()
+            $cache->expects()
                 ->read()
                 ->with($slug)
                 ->andReturn($expected);

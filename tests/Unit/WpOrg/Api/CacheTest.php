@@ -21,31 +21,62 @@ describe(Cache::class, static function (): void {
     });
 
     describe('::read()', static function (): void {
-        it('reads the first line', function (): void {});
+        it('reads the first line of from {$slug}.txt',
+            function (string $slug, bool $expected, string $firstLine): void {
+                $composerCache = Mockery::mock(ComposerCache::class);
+                $composerCache->expects()
+                    ->getAge()
+                    ->with("{$slug}.txt")
+                    ->andReturn(123);
+                $composerCache->expects()
+                    ->read()
+                    ->with("{$slug}.txt")
+                    ->andReturn("{$firstLine}\n{$slug}\n2006-01-02T15:04:05+07:00\n");
 
-        test('when missed', function (): void {});
+                $cache = new Cache($composerCache);
 
-        test('when expired', function (): void {});
+                $actual = $cache->read($slug);
+
+                expect($actual)->toBe($expected);
+            })->with('slugs');
+
+        test('when missed or expired', function (false|int $age): void {
+            $composerCache = Mockery::mock(ComposerCache::class);
+            $composerCache->expects()
+                ->getAge()
+                ->with('foo.txt')
+                ->andReturn($age);
+
+            $cache = new Cache($composerCache);
+
+            $actual = $cache->read('foo');
+
+            expect($actual)->toBeNull();
+        })->with([
+            'missed' => false,
+            'expired' => 999_999,
+        ]);
 
         test('when unexpected content', function (): void {});
     });
 
     describe('::write()', static function (): void {
-        it('writes the result into {$slug}.txt as the first line', function (string $slug, bool $isClosed, string $expected): void {
-            $composerCache = Mockery::spy(ComposerCache::class);
-            $cache = new Cache($composerCache);
+        it('writes the result into {$slug}.txt as the first line',
+            function (string $slug, bool $isClosed, string $expected): void {
+                $composerCache = Mockery::spy(ComposerCache::class);
+                $cache = new Cache($composerCache);
 
-            $cache->write($slug, $isClosed);
+                $cache->write($slug, $isClosed);
 
-            $composerCache->shouldHaveReceived('write', [
-                "{$slug}.txt",
-                Mockery::on(static fn (string $actual) => str_starts_with($actual, $expected."\n")),
-            ]);
-        })->with('slugs');
+                $composerCache->shouldHaveReceived('write', [
+                    "{$slug}.txt",
+                    Mockery::on(static fn (string $actual) => str_starts_with($actual, $expected."\n")),
+                ]);
+            })->with('slugs');
 
         test('when composer cache is read only', function (string $slug, bool $isClosed): void {
             $composerCache = Mockery::spy(ComposerCache::class);
-            $composerCache->allows()
+            $composerCache->expects()
                 ->isReadOnly()
                 ->andReturnTrue();
 
@@ -56,4 +87,4 @@ describe(Cache::class, static function (): void {
             $composerCache->shouldNotHaveReceived('write');
         })->with('slugs');
     });
-})->only();
+});
