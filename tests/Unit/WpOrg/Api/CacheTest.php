@@ -57,7 +57,26 @@ describe(Cache::class, static function (): void {
             'expired' => 999_999,
         ]);
 
-        test('when unexpected content', function (): void {});
+        test('when unexpected content', function (false|string $content): void {
+            $composerCache = Mockery::mock(ComposerCache::class);
+            $composerCache->expects()
+                ->getAge()
+                ->with("foo.txt")
+                ->andReturn(123);
+            $composerCache->expects()
+                ->read()
+                ->with("foo.txt")
+                ->andReturn($content);
+
+            $cache = new Cache($composerCache);
+
+            $actual = $cache->read('foo');
+
+            expect($actual)->toBeNull();
+        })->with([
+            'missed' => false,
+            'unexpected' => 'not-closed-nor-open',
+        ]);
     });
 
     describe('::write()', static function (): void {

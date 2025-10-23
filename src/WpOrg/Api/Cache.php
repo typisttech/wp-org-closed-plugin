@@ -27,15 +27,18 @@ class Cache
 
         $content = $this->cache->read($key);
 
-        // Unexpected.
+        // Should never happen because of the age check.
         if ($content === false) {
             return null;
         }
 
         $lines = explode("\n", $content);
 
-        // TODO: Ensure expected!
-        return $lines[0] === 'closed';
+        return match ($lines[0]) {
+            'closed' => true,
+            'open' => false,
+            default => null, // Unexpected content. Treat as a cache miss.
+        };
     }
 
     public function write(string $slug, bool $isClosed): void
