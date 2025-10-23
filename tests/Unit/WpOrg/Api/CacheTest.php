@@ -61,11 +61,11 @@ describe(Cache::class, static function (): void {
             $composerCache = Mockery::mock(ComposerCache::class);
             $composerCache->expects()
                 ->getAge()
-                ->with("foo.txt")
+                ->with('foo.txt')
                 ->andReturn(123);
             $composerCache->expects()
                 ->read()
-                ->with("foo.txt")
+                ->with('foo.txt')
                 ->andReturn($content);
 
             $cache = new Cache($composerCache);
