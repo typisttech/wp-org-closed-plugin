@@ -47,7 +47,7 @@ Attention: This package is abandoned and no longer maintained.
 ```
 
 ```console
-# The following commands will also show the same abandonment notice.
+# The following commands show the same abandonment notice.
 $ composer require
 $ composer install
 $ composer update
