@@ -30,34 +30,31 @@ Once [installed](#installation), use `composer` as usual.
 $ composer audit
 No security vulnerability advisories found.
 Found 1 abandoned package:
-+-------------------------+----------------------------------------------------------------------------------+
-| Abandoned Package       | Suggested Replacement                                                            |
-+-------------------------+----------------------------------------------------------------------------------+
-| wpackagist-plugin/moody | none                                                                             |
-+-------------------------+----------------------------------------------------------------------------------+
++------------------------------------+-----------------------+
+| Abandoned Package                  | Suggested Replacement |
++------------------------------------+-----------------------+
+| wpackagist-plugin/my-closed-plugin | none                  |
++------------------------------------+-----------------------+
 ```
 
 ```console
-$ composer show wpackagist-plugin/moody
+$ composer show wpackagist-plugin/my-closed-plugin
 
 # ...
-names    : wpackagist-plugin/moody
+names    : wpackagist-plugin/my-closed-plugin
 Attention: This package is abandoned and no longer maintained.
 # ...
 ```
 
 ```console
+# The following commands show the same abandonment notice.
+$ composer require
 $ composer install
-# ...
-Package wpackagist-plugin/moody is abandoned because https://wordpress.org/plugins/moody has been closed, you should avoid using it. No replacement was suggested.
-  - Installing wpackagist-plugin/moody (1.1): Extracting archive
-# ...
-```
-
-```console
 $ composer update
+
 # ...
-Package wpackagist-plugin/moody is abandoned because https://wordpress.org/plugins/moody has been closed, you should avoid using it. No replacement was suggested.
+Package wpackagist-plugin/my-closed-plugin is abandoned because https://wordpress.org/plugins/my-closed-plugin has been closed, you should avoid using it. No replacement was suggested.
+  - Installing wpackagist-plugin/my-closed-plugin (1.2.3): Extracting archive
 # ...
 ```
 
