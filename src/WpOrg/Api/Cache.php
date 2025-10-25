@@ -40,12 +40,15 @@ class Cache
             return;
         }
 
-        $content = $isClosed ? 'closed' : 'open';
-        $content .= PHP_EOL;
-        $content .= $slug;
-        $content .= PHP_EOL;
-        $content .= date(DateTimeInterface::RFC3339);
-        $content .= PHP_EOL;
+        $content = sprintf(
+            "%s%s%s%s%s%s",
+            $isClosed ? 'closed' : 'open',
+            PHP_EOL,
+            $slug,
+            PHP_EOL,
+            date(DateTimeInterface::RFC3339),
+            PHP_EOL
+        );
 
         $this->cache->write(
             $this->key($slug),
