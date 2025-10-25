@@ -6,11 +6,11 @@ namespace Tests\Unit\WpOrg\UrlParser;
 
 use Composer\Cache as ComposerCache;
 use Mockery;
-use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Cache;
+use TypistTech\WpOrgClosedPlugin\WpOrg\Api\FileCache;
 
-covers(Cache::class);
+covers(FileCache::class);
 
-describe(Cache::class, static function (): void {
+describe(FileCache::class, static function (): void {
     dataset('slugs', static function (): array {
         return [
             // Closed.
@@ -33,7 +33,7 @@ describe(Cache::class, static function (): void {
                     ->with("{$slug}.txt")
                     ->andReturn("{$firstLine}\n{$slug}\n2006-01-02T15:04:05+07:00\n");
 
-                $cache = new Cache($composerCache);
+                $cache = new FileCache($composerCache);
 
                 $actual = $cache->read($slug);
 
@@ -47,7 +47,7 @@ describe(Cache::class, static function (): void {
                 ->with('foo.txt')
                 ->andReturn($age);
 
-            $cache = new Cache($composerCache);
+            $cache = new FileCache($composerCache);
 
             $actual = $cache->read('foo');
 
@@ -68,7 +68,7 @@ describe(Cache::class, static function (): void {
                 ->with('foo.txt')
                 ->andReturn($content);
 
-            $cache = new Cache($composerCache);
+            $cache = new FileCache($composerCache);
 
             $actual = $cache->read('foo');
 
@@ -83,7 +83,7 @@ describe(Cache::class, static function (): void {
         it('writes the result into {$slug}.txt as the first line',
             function (string $slug, bool $isClosed, string $expected): void {
                 $composerCache = Mockery::spy(ComposerCache::class);
-                $cache = new Cache($composerCache);
+                $cache = new FileCache($composerCache);
 
                 $cache->write($slug, $isClosed);
 
@@ -99,7 +99,7 @@ describe(Cache::class, static function (): void {
                 ->isReadOnly()
                 ->andReturnTrue();
 
-            $cache = new Cache($composerCache);
+            $cache = new FileCache($composerCache);
 
             $cache->write($slug, $isClosed);
 

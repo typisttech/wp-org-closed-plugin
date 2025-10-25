@@ -8,8 +8,10 @@ use Composer\Cache;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
-use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Cache as ApiCache;
+use TypistTech\WpOrgClosedPlugin\WpOrg\Api\ArrayCache;
 use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Client;
+use TypistTech\WpOrgClosedPlugin\WpOrg\Api\FileCache;
+use TypistTech\WpOrgClosedPlugin\WpOrg\Api\CacheProxy;
 use TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser\DownloadUrlParser;
 use TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser\MultiUrlParser;
 use TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser\SvnUrlParser;
@@ -23,8 +25,12 @@ readonly class MarkClosedPluginAsAbandoned
 
         $config = $composer->getConfig();
         $cachePath = "{$config->get('cache-dir')}/wp-org-closed-plugin";
-        $cache = new Cache($io, $cachePath);
-        $cache->setReadOnly($config->get('cache-read-only'));
+        $composerCache = new Cache($io, $cachePath);
+        $composerCache->setReadOnly($config->get('cache-read-only'));
+        $cache = new CacheProxy(
+            new ArrayCache,
+            new FileCache($composerCache),
+        );
 
         return new self(
             new MultiUrlParser(
@@ -34,7 +40,7 @@ readonly class MarkClosedPluginAsAbandoned
             new Client(
                 $loop->getHttpDownloader(),
                 $loop,
-                new ApiCache($cache),
+                $cache,
             ),
             $io,
         );

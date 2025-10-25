@@ -15,7 +15,7 @@ readonly class Client
     public function __construct(
         private HttpDownloader $httpDownloader,
         private Loop $loop,
-        private Cache $cache,
+        private CacheInterface $cache,
     ) {}
 
     public function isClosed(string $slug): bool

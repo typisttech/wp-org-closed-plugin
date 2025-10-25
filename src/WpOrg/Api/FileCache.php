@@ -7,7 +7,7 @@ namespace TypistTech\WpOrgClosedPlugin\WpOrg\Api;
 use Composer\Cache as ComposerCache;
 use DateTimeInterface;
 
-class Cache
+class FileCache implements CacheInterface
 {
     private const int TTL = 600;
 
