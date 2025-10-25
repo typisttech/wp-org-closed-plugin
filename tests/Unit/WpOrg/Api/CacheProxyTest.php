@@ -11,6 +11,15 @@ use TypistTech\WpOrgClosedPlugin\WpOrg\Api\CacheProxy;
 covers(CacheProxy::class);
 
 describe(CacheProxy::class, static function (): void {
+    it('implements CacheInterface', function (): void {
+        $cache = new CacheProxy(
+            Mockery::mock(CacheInterface::class),
+            Mockery::mock(CacheInterface::class),
+        );
+
+        expect($cache)->toBeInstanceOf(CacheInterface::class);
+    });
+
     describe('::read()', static function (): void {
         test('when fast hits', function (bool $fastValue): void {
             $fast = Mockery::spy(CacheInterface::class);
