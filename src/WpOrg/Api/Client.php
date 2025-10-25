@@ -7,6 +7,7 @@ namespace TypistTech\WpOrgClosedPlugin\WpOrg\Api;
 use Composer\Downloader\TransportException;
 use Composer\Util\HttpDownloader;
 use Composer\Util\Loop;
+use React\Promise\Promise;
 use React\Promise\PromiseInterface;
 
 readonly class Client
@@ -24,13 +25,8 @@ readonly class Client
             return false;
         }
 
-        $cached = $this->cache->read($slug);
-        if ($cached !== null) {
-            return $cached;
-        }
-
         $result = null;
-        $promise = $this->fetchAndCacheAsync($slug)
+        $promise = $this->isClosedAsync($slug)
             ->then(function (bool $isClosed) use (&$result): void {
                 $result = $isClosed;
             });
@@ -38,6 +34,19 @@ readonly class Client
 
         /** @var bool */
         return $result;
+    }
+
+    /**
+     * @return PromiseInterface<bool>
+     */
+    private function isClosedAsync(string $slug): PromiseInterface
+    {
+        /** @var Promise<bool> */
+        return new Promise(function (callable $resolve) use ($slug): void {
+            $cached = $this->cache->read($slug);
+            $next = $cached ?? $this->fetchAndCacheAsync($slug);
+            $resolve($next);
+        });
     }
 
     /**
