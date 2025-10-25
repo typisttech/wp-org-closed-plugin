@@ -25,19 +25,12 @@ class Cache
             return null;
         }
 
-        $content = $this->cache->read($key);
+        $content = (string) $this->cache->read($key);
 
-        // Should never happen because of the age check.
-        if ($content === false) {
-            return null;
-        }
-
-        $lines = explode("\n", $content);
-
-        return match ($lines[0]) {
-            'closed' => true,
-            'open' => false,
-            default => null, // Unexpected content. Treat as a cache miss.
+        return match (true) {
+            str_starts_with($content, 'closed'.PHP_EOL) => true,
+            str_starts_with($content, 'open'.PHP_EOL) => false,
+            default => null, // Unexpected content. Treat as a miss.
         };
     }
 
@@ -48,10 +41,13 @@ class Cache
         }
 
         $content = sprintf(
-            "%s\n%s\n%s\n",
+            "%s%s%s%s%s%s",
             $isClosed ? 'closed' : 'open',
+            PHP_EOL,
             $slug,
+            PHP_EOL,
             date(DateTimeInterface::RFC3339),
+            PHP_EOL
         );
 
         $this->cache->write(
