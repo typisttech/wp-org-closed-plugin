@@ -65,7 +65,7 @@ readonly class MarkClosedPluginAsAbandoned
 
         $slugCount = count($slugs);
         $message = sprintf(
-            'Warming cache for WordPress.org closed plugin status for %d %s',
+            'Warming WordPress.org plugin status cache for %d %s',
             $slugCount,
             $slugCount === 1 ? 'slug' : 'slugs',
         );
