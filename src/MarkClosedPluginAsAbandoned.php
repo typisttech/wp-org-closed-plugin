@@ -49,7 +49,7 @@ readonly class MarkClosedPluginAsAbandoned
     public function __invoke(CompletePackageInterface $package): void
     {
         $this->io->debug(
-            "Checking whether <info>{$package->getPrettyName()}</info> is closed on <href=https://wordpress.org>https://wordpress.org</>"
+            "Checking whether <info>{$package->getPrettyName()}</info> is closed on https://wordpress.org"
         );
 
         $slug = $this->slug(
@@ -64,7 +64,7 @@ readonly class MarkClosedPluginAsAbandoned
             return;
         }
         $this->io->debug(
-            "Assuming <info>{$package->getPrettyName()}</info>'s <href=https://wordpress.org/plugins/{$slug}>wordpress.org</> slug is <comment>{$slug}</comment>"
+            "Assuming <info>{$package->getPrettyName()}</info> is <href=https://wordpress.org/plugins/{$slug}>https://wordpress.org/plugins/<comment>{$slug}</comment></>"
         );
 
         $isClosed = $this->client->isClosed($slug);
