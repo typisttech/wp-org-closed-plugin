@@ -41,7 +41,7 @@ class Cache
         }
 
         $content = sprintf(
-            "%s%s%s%s%s%s",
+            '%s%s%s%s%s%s',
             $isClosed ? 'closed' : 'open',
             PHP_EOL,
             $slug,
