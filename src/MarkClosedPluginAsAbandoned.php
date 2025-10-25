@@ -52,6 +52,28 @@ readonly class MarkClosedPluginAsAbandoned
         private IOInterface $io,
     ) {}
 
+    public function warmCache(CompletePackageInterface ...$packages): void
+    {
+        $slugs = array_map(
+            fn (CompletePackageInterface $package): ?string => $this->slug(
+                ...$package->getDistUrls(),
+                ...$package->getSourceUrls(),
+            ),
+            $packages,
+        );
+        $slugs = array_filter($slugs, static fn (?string $slug) => $slug !== null);
+
+        $slugCount = count($slugs);
+        $message = sprintf(
+            'Warming cache for WordPress.org closed plugin status for %d %s',
+            $slugCount,
+            $slugCount === 1 ? 'slug' : 'slugs',
+        );
+        $this->io->debug($message);
+
+        $this->client->warmCache(...$slugs);
+    }
+
     public function __invoke(CompletePackageInterface $package): void
     {
         $this->io->debug(
