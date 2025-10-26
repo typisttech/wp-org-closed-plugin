@@ -26,7 +26,7 @@ build-latest: build-php-8-composer-latest
 test-latest: test-php-8-composer-latest
 
 test-local:
-	go test -count=1 ./...
+	go test -count=1 -shuffle=on ./...
 
 update-scripts:
 	UPDATE_SCRIPTS=1 $(MAKE) test-local
