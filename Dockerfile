@@ -19,4 +19,4 @@ WORKDIR /tmp-app
 RUN go mod download && rm -rf /tmp-app
 
 WORKDIR /app
-CMD ["go", "test", "./..."]
+CMD ["go", "test", "-shuffle=on", "./..."]
