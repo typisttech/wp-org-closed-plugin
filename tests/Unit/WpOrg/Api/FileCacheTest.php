@@ -40,7 +40,7 @@ describe(FileCache::class, static function (): void {
                 $composerCache->expects()
                     ->read()
                     ->with("{$slug}.txt")
-                    ->andReturn("{$firstLine}\n{$slug}\n2006-01-02T15:04:05+07:00\n");
+                    ->andReturn($firstLine.PHP_EOL.$slug.PHP_EOL.'2006-01-02T15:04:05+07:00'.PHP_EOL);
 
                 $cache = new FileCache($composerCache);
 
@@ -98,7 +98,7 @@ describe(FileCache::class, static function (): void {
 
                 $composerCache->shouldHaveReceived('write', [
                     "{$slug}.txt",
-                    Mockery::on(static fn (string $actual) => str_starts_with($actual, $expected."\n")),
+                    Mockery::on(static fn (string $actual) => str_starts_with($actual, $expected.PHP_EOL.$slug.PHP_EOL)),
                 ]);
             })->with('slugs');
 
