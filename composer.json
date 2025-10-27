@@ -1,6 +1,6 @@
 {
     "name": "typisttech/wp-org-closed-plugin",
-    "description": "Composer plugin to mark package as abandoned if closed on WordPress.org",
+    "description": "Composer plugin to mark packages as abandoned if closed on WordPress.org",
     "license": "MIT",
     "type": "composer-plugin",
     "keywords": [
