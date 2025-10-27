@@ -37,12 +37,11 @@ jobs:
     strategy:
       matrix:
         php-version: ${{ fromJSON(needs.php-matrix.outputs.versions) }}
+        dependency-versions: [highest, lowest]
         coverage: ['none']
-        exclude:
-          - php-version: ${{ needs.php-matrix.outputs.highest }}
-            coverage: 'none'
         include:
           - php-version: ${{ needs.php-matrix.outputs.highest }}
+            dependency-versions: locked
             coverage: xdebug
     runs-on: ubuntu-latest
     steps:
@@ -54,6 +53,8 @@ jobs:
           coverage: ${{ matrix.coverage }}
 
       - uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: ${{ matrix.dependency-versions }}
 
       - run: composer pest:unit -- ${COVERAGE} --ci
         env:
@@ -62,7 +63,7 @@ jobs:
         env:
           COVERAGE: ${{ matrix.coverage == 'xdebug' && '--coverage-clover coverage-feature.xml' || '' }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: matrix.coverage == 'xdebug'
         with:
           name: coverage
@@ -76,7 +77,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: coverage
 
