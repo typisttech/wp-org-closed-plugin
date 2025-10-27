@@ -12,7 +12,7 @@
 [![Hire Typist Tech](https://img.shields.io/badge/Hire-Typist%20Tech-778899)](https://typist.tech/contact/)
 
 <p>
-  <strong>Composer plugin to mark package as abandoned if closed on WordPress.org</strong>
+  <strong>Composer plugin to mark packages as abandoned if closed on WordPress.org</strong>
   <br>
   <br>
   Built with ♥ by <a href="https://typist.tech/">Typist Tech</a>
@@ -47,7 +47,7 @@ Attention: This package is abandoned and no longer maintained.
 ```
 
 ```console
-# The following commands show the same abandonment notice.
+# The following commands show the same abandonment warning.
 $ composer require
 $ composer install
 $ composer update
@@ -150,6 +150,16 @@ Skipped checking for closed plugins because of --locked.
 ```
 
 You should run `composer audit` without `--locked` to check for closed plugins.
+
+### Cache
+
+WordPress.org API responses are cached for 10 minutes.
+
+If you must clear the cache, delete the `<composer-cache-dir>/wp-org-closed-plugin` directory.
+
+```sh
+rm -rf $(composer config cache-dir)/wp-org-closed-plugin
+```
 
 > [!TIP]
 > **Hire Tang Rufus!**
