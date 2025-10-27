@@ -63,7 +63,7 @@ jobs:
         env:
           COVERAGE: ${{ matrix.coverage == 'xdebug' && '--coverage-clover coverage-feature.xml' || '' }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: matrix.coverage == 'xdebug'
         with:
           name: coverage
