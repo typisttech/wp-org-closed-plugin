@@ -6,7 +6,7 @@ namespace Tests\Feature\WpOrg\Api;
 
 use Composer\Util\HttpDownloader;
 use Mockery;
-use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Cache;
+use TypistTech\WpOrgClosedPlugin\WpOrg\Api\CacheInterface;
 use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Client;
 
 covers(Client::class);
@@ -49,7 +49,7 @@ describe(Client::class, static function (): void {
         it('returns true if and only if the plugin is closed', function (string $slug, bool $expected): void {
             $loop = $this->loop();
             $httpDownloader = $loop->getHttpDownloader();
-            $cache = Mockery::spy(Cache::class);
+            $cache = Mockery::spy(CacheInterface::class);
 
             $client = new Client($httpDownloader, $loop, $cache);
 
@@ -61,7 +61,7 @@ describe(Client::class, static function (): void {
         it('writes to cache', function (string $slug, bool $expected): void {
             $loop = $this->loop();
             $httpDownloader = $loop->getHttpDownloader();
-            $cache = Mockery::spy(Cache::class);
+            $cache = Mockery::spy(CacheInterface::class);
 
             $client = new Client($httpDownloader, $loop, $cache);
 
@@ -75,7 +75,7 @@ describe(Client::class, static function (): void {
             $loop = $this->loop();
             $httpDownloader = Mockery::spy(HttpDownloader::class);
 
-            $cache = Mockery::spy(Cache::class);
+            $cache = Mockery::spy(CacheInterface::class);
             $cache->expects()
                 ->read()
                 ->with($slug)

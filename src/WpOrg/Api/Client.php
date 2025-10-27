@@ -15,8 +15,21 @@ readonly class Client
     public function __construct(
         private HttpDownloader $httpDownloader,
         private Loop $loop,
-        private Cache $cache,
+        private CacheInterface $cache,
     ) {}
+
+    public function warmCache(string ...$slugs): void
+    {
+        $slugs = array_map('trim', $slugs);
+        $slugs = array_filter($slugs, static fn (string $slug) => $slug !== '');
+
+        $promises = array_map(
+            fn (string $slug) => $this->isClosedAsync($slug),
+            $slugs,
+        );
+
+        $this->loop->wait($promises);
+    }
 
     public function isClosed(string $slug): bool
     {

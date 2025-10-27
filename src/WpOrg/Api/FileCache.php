@@ -7,12 +7,12 @@ namespace TypistTech\WpOrgClosedPlugin\WpOrg\Api;
 use Composer\Cache as ComposerCache;
 use DateTimeInterface;
 
-class Cache
+readonly class FileCache implements CacheInterface
 {
     private const int TTL = 600;
 
     public function __construct(
-        private readonly ComposerCache $cache,
+        private ComposerCache $cache,
     ) {}
 
     public function read(string $slug): ?bool
