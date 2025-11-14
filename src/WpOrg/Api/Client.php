@@ -88,7 +88,33 @@ readonly class Client
             ], '', '&'),
         );
 
-        return $this->httpDownloader->add($url)
+        /** 
+         * Hack to disallow HTTP/3, forcing HttpDownloader to use RemoteFilesystem instead of CurlDownloader.
+         *
+         * I suspect api.wordpress.org does not properly support HTTP/3:
+         *
+         *     $ curl --http1.1 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
+         *     ...json response
+         *
+         *     $ curl --http2 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
+         *     ...json response
+         *
+         *     $ curl --http3-only 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
+         *     ...sometimes json response
+         *     ...but most of the time ERR_DRAINING
+         *     curl: (56) ngtcp2_conn_writev_stream returned error: ERR_DRAINING
+         *
+         * See:
+         *   - https://github.com/composer/composer/pull/12363
+         *   - https://github.com/composer/composer/blob/f5854b140ca27164d352ce30deece798acf3e36b/src/Composer/Util/HttpDownloader.php#L537
+         */
+        $options = [
+            'ssl' => [
+                'allow_self_signed' => true,
+            ],
+        ];
+
+        return $this->httpDownloader->add($url, $options)
             ->then(static fn () => null) // Ignore successful responses. Closed plugins always return 404.
             ->catch(static function (TransportException $e): ?string {
                 // Closed plugins always return 404.
