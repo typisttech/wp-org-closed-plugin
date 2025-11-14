@@ -32,7 +32,7 @@ readonly class Client
      *   - https://github.com/composer/composer/pull/12363
      *   - https://github.com/composer/composer/blob/f5854b140ca27164d352ce30deece798acf3e36b/src/Composer/Util/HttpDownloader.php#L537
      */
-    private const OPTIONS = [
+    private const array OPTIONS = [
         'ssl' => [
             'allow_self_signed' => true,
         ],
