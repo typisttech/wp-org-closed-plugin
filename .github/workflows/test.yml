@@ -103,7 +103,7 @@ jobs:
     strategy:
       matrix:
         php-version: ${{ fromJSON(needs.php-matrix.outputs.versions) }}
-        composer-version: ['2.6', '2.7', '2.8']
+        composer-version: ['2.6', '2.7', '2.8', '2.9']
     runs-on: ubuntu-latest
     env:
       GOFLAGS: '-mod=mod'

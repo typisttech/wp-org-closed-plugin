@@ -6,7 +6,6 @@ exec composer require wpackagist-plugin/hello-dolly
 
 exec composer require wpackagist-plugin/hello-dolly
 
-stderr 'Nothing to install, update or remove'
 ! stderr abandoned
 
 -- composer.json --

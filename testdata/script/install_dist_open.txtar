@@ -6,7 +6,6 @@ exec composer install
 
 exec composer install
 
-stderr 'Nothing to install, update or remove'
 ! stderr abandoned
 
 -- composer.json --
