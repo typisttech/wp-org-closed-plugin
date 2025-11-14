@@ -161,6 +161,40 @@ If you must clear the cache, delete the `<composer-cache-dir>/wp-org-closed-plug
 rm -rf $(composer config cache-dir)/wp-org-closed-plugin
 ```
 
+### Why `allow_self_signed` when connecting to `https://api.wordpress.org`?
+
+> [!IMPORTANT]
+> **Help Wanted!**
+>
+> Please send pull requests if you know how to get around the error:
+>
+> ```console
+> $ curl --http3-only 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
+> curl: (56) ngtcp2_conn_writev_stream returned error: ERR_DRAINING
+> ```
+
+It is a hack to disallow HTTP/3, forcing `HttpDownloader` to use `RemoteFilesystem` instead of `CurlDownloader`.
+
+I suspect api.wordpress.org does not properly support HTTP/3:
+
+```console
+$ curl --http1.1 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
+...json response
+
+$ curl --http2 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
+...json response
+
+$ curl --http3-only 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
+...sometimes json response
+...but most of the time ERR_DRAINING
+curl: (56) ngtcp2_conn_writev_stream returned error: ERR_DRAINING
+```
+
+See:
+- https://github.com/composer/composer/pull/12363
+- https://github.com/composer/composer/blob/f5854b140ca27164d352ce30deece798acf3e36b/src/Composer/Util/HttpDownloader.php#L537
+- https://github.com/typisttech/wp-org-closed-plugin/pull/22
+
 > [!TIP]
 > **Hire Tang Rufus!**
 >

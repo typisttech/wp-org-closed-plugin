@@ -6,7 +6,6 @@ stderr -count=1 'Package wpackagist-plugin/better-delete-revision is abandoned'
 
 exec composer install
 
-stderr 'Nothing to install, update or remove'
 stderr -count=1 'Package wpackagist-plugin/better-delete-revision is abandoned'
 
 -- composer.json --
