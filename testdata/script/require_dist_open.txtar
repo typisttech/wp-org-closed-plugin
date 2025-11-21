@@ -32,9 +32,6 @@ exec composer require wpackagist-plugin/hello-dolly
         "allow-plugins": {
             "composer/installers": true,
             "typisttech/wp-org-closed-plugin": true
-        },
-        "audit": {
-            "abandoned": "fail"
         }
     }
 }
