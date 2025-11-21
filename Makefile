@@ -1,6 +1,10 @@
 export GOFLAGS=-mod=mod
 
 combos := php-8-composer-latest \
+	php-8.5-composer-2.9 \
+	php-8.5-composer-2.8 \
+	php-8.5-composer-2.7 \
+	php-8.5-composer-2.6 \
 	php-8.4-composer-2.9 \
 	php-8.4-composer-2.8 \
 	php-8.4-composer-2.7 \
