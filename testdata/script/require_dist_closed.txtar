@@ -32,9 +32,6 @@ stderr -count=1 'Package wpackagist-plugin/better-delete-revision is abandoned'
         "allow-plugins": {
             "composer/installers": true,
             "typisttech/wp-org-closed-plugin": true
-        },
-        "audit": {
-            "abandoned": "fail"
         }
     }
 }

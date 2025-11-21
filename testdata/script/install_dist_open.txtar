@@ -33,9 +33,6 @@ exec composer install
         "allow-plugins": {
             "composer/installers": true,
             "typisttech/wp-org-closed-plugin": true
-        },
-        "audit": {
-            "abandoned": "fail"
         }
     }
 }

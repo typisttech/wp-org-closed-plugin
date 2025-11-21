@@ -30,9 +30,6 @@ stderr 'Attention: This package is abandoned and no longer maintained\.'
         "allow-plugins": {
             "composer/installers": true,
             "typisttech/wp-org-closed-plugin": true
-        },
-        "audit": {
-            "abandoned": "fail"
         }
     }
 }
