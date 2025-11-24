@@ -24,7 +24,7 @@ jobs:
       versions: ${{ steps.php-matrix.outputs.versions }}
       highest: ${{ steps.php-matrix.outputs.highest }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           sparse-checkout: composer.json
           sparse-checkout-cone-mode: false
@@ -45,7 +45,7 @@ jobs:
             coverage: xdebug
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -75,7 +75,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/download-artifact@v6
         with:
@@ -111,7 +111,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install --no-install-recommends --yes subversion
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: shivammathur/setup-php@v2
         with:
