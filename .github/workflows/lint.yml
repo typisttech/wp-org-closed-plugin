@@ -30,6 +30,7 @@ jobs:
 
   wait-for-all-lint:
     needs:
+      - actions
       - php
       - go
     runs-on: ubuntu-latest
