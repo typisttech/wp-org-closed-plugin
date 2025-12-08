@@ -17,6 +17,9 @@ permissions:
   contents: read
 
 jobs:
+  actions:
+    uses: typisttech/.github/.github/workflows/lint-actions.yml@v3
+  
   php:
     uses: typisttech/.github/.github/workflows/lint-php.yml@v3
 
