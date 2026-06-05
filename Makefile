@@ -38,3 +38,6 @@ clean:
 	else \
 		docker rmi --force $${IMAGE_IDS}; \
 	fi
+
+golangci-lint:
+	golangci-lint run

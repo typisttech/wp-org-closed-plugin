@@ -1,0 +1,117 @@
+version: "2"
+
+linters:
+  enable:
+    # Default
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    # Custom
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - copyloopvar
+    - cyclop
+    - depguard
+    - dogsled
+    - dupl
+    - dupword
+    - durationcheck
+    - embeddedstructfieldcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - exptostd
+    - fatcontext
+    - forcetypeassert
+    - gocheckcompilerdirectives
+    - gochecknoinits
+    - gocritic
+    - godoclint
+    - godot
+    - gosec
+    - misspell
+    - nolintlint
+    - nonamedreturns
+    - revive
+    - sloglint
+    - unparam
+    - usestdlibvars
+
+  settings:
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+
+    staticcheck:
+      checks:
+        - all
+        - -ST1000 # at least one file in a package should have a package comment
+
+    # Custom
+    depguard:
+      rules:
+        all:
+          list-mode: strict
+          files:
+            - $all
+          allow:
+            - $gostd
+            - golang.org/x
+            - github.com/typisttech/wp-org-closed-plugin
+            - github.com/rogpeppe/go-internal/testscript
+
+    errorlint:
+      errorf: false
+
+    exhaustive:
+      default-signifies-exhaustive: true
+
+    gocritic:
+      enabled-checks:
+        - emptyStringTest
+        - preferStringWriter
+
+    godoclint:
+      enable:
+        - max-len
+        - no-unused-link
+        - require-stdlib-doclink
+
+    godot:
+      scope: toplevel
+      capital: true
+
+    gosec:
+      excludes:
+        - G104 # Handled by errcheck
+
+    nolintlint:
+      require-specific: true
+
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+
+  exclusions:
+    generated: disable
+    warn-unused: true
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+
+  settings:
+    gofumpt:
+      extra-rules: true
