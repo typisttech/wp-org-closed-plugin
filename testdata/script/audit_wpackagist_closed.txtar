@@ -11,7 +11,7 @@ cmp stdout golden.out
     "version": "0.0.1",
     "require": {
         "typisttech/wp-org-closed-plugin": "@dev",
-        "wpackagist-plugin/moody": "*"
+        "wpackagist-plugin/wp-mobi": "*"
     },
     "repositories": {
         "wpackagist": {
@@ -31,6 +31,6 @@ cmp stdout golden.out
 {
     "advisories": [],
     "abandoned": {
-        "wpackagist-plugin/moody": null
+        "wpackagist-plugin/wp-mobi": null
     }
 }
