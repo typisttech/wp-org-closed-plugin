@@ -69,8 +69,8 @@
             "pint --test",
             "phpstan analyse"
         ],
-        "pest": "pest",
-        "pest:feature": "pest --group=feature",
-        "pest:unit": "pest --group=unit"
+        "test": "pest",
+        "test:feature": "pest --group=feature",
+        "test:unit": "pest --group=unit"
     }
 }
