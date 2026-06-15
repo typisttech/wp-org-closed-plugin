@@ -23,4 +23,4 @@ jobs:
     uses: typisttech/.github/.github/workflows/audit-php.yml@2273764b628c3b4b05116711ea206967f085a14b # v5.5.2
 
   go:
-    uses: typisttech/.github/.github/workflows/audit-go.yml@617c38e301cb42b0a1edd3ef84ef50663e0a98ab # v5.5.1
+    uses: typisttech/.github/.github/workflows/audit-go.yml@2273764b628c3b4b05116711ea206967f085a14b # v5.5.2
