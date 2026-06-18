@@ -18,6 +18,8 @@ class Client
 
     private const string CACHE_KEY = 'closed.json';
 
+    private const int CACHE_TTL_SECONDS = 600;
+
     /** @var array<string, true>|null */
     private ?array $closedSlugs = null;
 
@@ -44,25 +46,30 @@ class Client
     }
 
     /**
-     * Revalidate the cached list against the endpoint and return the closed set.
+     * Return the cached list while it is fresh, otherwise refresh from the endpoint.
      *
-     * A `304 Not Modified`, a transport failure, or an empty/malformed body all
-     * fall back to the cached copy instead of discarding known data.
+     * A transport failure or an empty/malformed body falls back to the cached
+     * copy instead of discarding known data.
      *
      * @return array<string, true>
      */
     private function load(): array
     {
         $cached = $this->cache->read(self::CACHE_KEY);
-        $fallback = $this->decode($cached) ?? [];
+        $cachedSlugs = $this->decode($cached);
+        if ($cachedSlugs !== null && $this->isCacheFresh()) {
+            return $cachedSlugs;
+        }
+
+        $fallback = $cachedSlugs ?? [];
 
         try {
-            $response = $this->httpDownloader->get(self::URL, $this->options());
+            $response = $this->httpDownloader->get(self::URL);
         } catch (TransportException) {
             return $fallback;
         }
 
-        $body = $response->getStatusCode() === 304 ? null : $response->getBody();
+        $body = $response->getBody();
         if ($body === null) {
             return $fallback;
         }
@@ -77,23 +84,11 @@ class Client
         return $fresh;
     }
 
-    /**
-     * A conditional request whenever something is cached, so an unchanged list
-     * returns a cheap `304 Not Modified` (Composer even synthesises one under
-     * `COMPOSER_DISABLE_NETWORK`). The marker is the cache entry's own age.
-     *
-     * @return array{http?: array{header: list<string>}}
-     */
-    private function options(): array
+    private function isCacheFresh(): bool
     {
         $age = $this->cache->getAge(self::CACHE_KEY);
-        if ($age === false) {
-            return [];
-        }
 
-        $since = gmdate('D, d M Y H:i:s', time() - $age) . ' GMT';
-
-        return ['http' => ['header' => ['If-Modified-Since: ' . $since]]];
+        return $age !== false && $age < self::CACHE_TTL_SECONDS;
     }
 
     /**
