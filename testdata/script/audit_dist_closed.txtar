@@ -39,5 +39,6 @@ cmp stdout golden.out
     "advisories": [],
     "abandoned": {
         "wpackagist-plugin/better-delete-revision": null
-    }
+    },
+    "filter": []
 }

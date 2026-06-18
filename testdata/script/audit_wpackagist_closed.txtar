@@ -32,5 +32,6 @@ cmp stdout golden.out
     "advisories": [],
     "abandoned": {
         "wpackagist-plugin/wp-mobi": null
-    }
+    },
+    "filter": []
 }

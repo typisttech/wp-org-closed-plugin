@@ -38,5 +38,6 @@ stderr 'Skipped checking for closed plugins because of --locked\.'
 -- golden.out --
 {
     "advisories": [],
-    "abandoned": []
+    "abandoned": [],
+    "filter": []
 }

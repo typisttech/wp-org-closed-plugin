@@ -1,0 +1,66 @@
+[env]
+GOFLAGS = '-mod=mod'
+
+####################################
+#
+# Test
+#
+####################################
+[tasks.test]
+depends = ['test:php', 'test:e2e']
+
+[tasks."test:php"]
+depends = ['composer:install']
+run = ['composer pest']
+
+[tasks."test:e2e"]
+depends = ['composer:install']
+run = ['go test -count=1 -shuffle=on ./...']
+
+####################################
+#
+# Code Generation
+#
+####################################
+[tasks."gen"]
+depends = ['composer:install']
+run = ['UPDATE_SCRIPTS=1 go test -count=1 -shuffle=on ./...']
+
+####################################
+#
+# Lint
+#
+####################################
+[tasks.lint]
+depends = ['lint:php', 'lint:go', 'lint:mise']
+
+[tasks."lint:php"]
+depends = ['composer:install']
+run = ['composer phpstan -- analyse']
+
+[tasks."lint:go"]
+run = ['go mod tidy -diff', 'golangci-lint run']
+
+[tasks."lint:mise"]
+run = ['mise fmt --check']
+
+[tasks."lint:fix"]
+depends = ['lint:fix:php', 'lint:fix:go', 'lint:fix:mise']
+
+[tasks."lint:fix:php"]
+depends = ['composer:install']
+run = ['composer phpstan -- analyse --fix || true']
+
+[tasks."lint:fix:go"]
+run = ['go mod tidy', 'golangci-lint run --fix']
+
+[tasks."lint:fix:mise"]
+run = ['mise fmt']
+
+####################################
+#
+# Miscellaneous
+#
+####################################
+[tasks."composer:install"]
+run = ['composer install --quiet --prefer-dist']
