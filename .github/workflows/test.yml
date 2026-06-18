@@ -37,17 +37,14 @@ jobs:
     needs: php-matrix
     strategy:
       matrix:
-        suite: &suite [unit, feature]
         php-version: ${{ fromJSON(needs.php-matrix.outputs.versions) }}
         dependency-versions: [highest, lowest]
         coverage: ['none']
         include:
-          - suite: unit
-            php-version: ${{ needs.php-matrix.outputs.highest }}
+          - php-version: ${{ needs.php-matrix.outputs.highest }}
             dependency-versions: locked
             coverage: xdebug
-          - suite: feature
-            php-version: ${{ needs.php-matrix.outputs.highest }}
+          - php-version: ${{ needs.php-matrix.outputs.highest }}
             dependency-versions: locked
             coverage: xdebug
 
@@ -66,27 +63,20 @@ jobs:
         with:
           dependency-versions: ${{ matrix.dependency-versions }}
 
-      - run: composer "test:${SUITE}" -- --ci --coverage-clover "coverage-${SUITE}.xml"
+      - run: composer test -- --ci --coverage-clover coverage.xml
         if: matrix.coverage == 'xdebug'
-        env:
-          SUITE: ${{ matrix.suite }}
 
-      - run: composer "test:${SUITE}" -- --ci
+      - run: composer test -- --ci
         if: matrix.coverage != 'xdebug'
-        env:
-          SUITE: ${{ matrix.suite }}
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: matrix.coverage == 'xdebug'
         with:
-          name: coverage-${{ matrix.suite }}
-          path: coverage-${{ matrix.suite }}.xml
+          name: coverage
+          path: coverage.xml
 
   codecov:
     needs: test
-    strategy:
-      matrix:
-        suite: *suite
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -97,15 +87,14 @@ jobs:
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: coverage-${{ matrix.suite }}
+          name: coverage
 
       - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           use_oidc: true
           fail_ci_if_error: true
           disable_search: true
-          files: coverage-${{ matrix.suite }}.xml
-          flags: ${{ matrix.suite }}
+          files: coverage.xml
 
   e2e:
     name: e2e (PHP ${{ matrix.php-version }}, Composer ${{ matrix.composer-version }})

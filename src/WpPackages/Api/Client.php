@@ -14,7 +14,7 @@ class Client
      * The wp-packages.org endpoint that returns every closed wp-plugin slug as
      * a single JSON array, e.g. ["better-delete-revision", "spam-stopgap"].
      */
-    private const string URL = 'https://wp-packages.org/api/packages/wp-plugin/closed';
+    public const string URL = 'https://wp-packages.org/api/packages/wp-plugin/closed';
 
     private const string CACHE_KEY = 'closed.json';
 

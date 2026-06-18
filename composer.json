@@ -66,8 +66,6 @@
     },
     "scripts": {
         "lint": "phpstan analyse",
-        "test": "pest",
-        "test:feature": "pest --group=feature",
-        "test:unit": "pest --group=unit"
+        "test": "pest"
     }
 }
