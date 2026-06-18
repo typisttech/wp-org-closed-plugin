@@ -6,6 +6,10 @@ namespace TypistTech\WpOrgClosedPlugin\WpPackages\Api;
 
 use Composer\Cache;
 use Composer\Downloader\TransportException;
+use Composer\EventDispatcher\EventDispatcher;
+use Composer\Plugin\PluginEvents;
+use Composer\Plugin\PostFileDownloadEvent;
+use Composer\Plugin\PreFileDownloadEvent;
 use Composer\Util\HttpDownloader;
 
 class Client
@@ -16,8 +20,6 @@ class Client
      */
     public const string URL = 'https://wp-packages.org/api/packages/wp-plugin/closed';
 
-    private const string CACHE_KEY = 'closed.json';
-
     private const int CACHE_TTL_SECONDS = 600;
 
     /** @var array<string, true>|null */
@@ -26,6 +28,7 @@ class Client
     public function __construct(
         private readonly HttpDownloader $httpDownloader,
         private readonly Cache $cache,
+        private readonly ?EventDispatcher $eventDispatcher = null,
     ) {}
 
     public function isClosed(string $slug): bool
@@ -55,18 +58,31 @@ class Client
      */
     private function load(): array
     {
-        $cached = $this->cache->read(self::CACHE_KEY);
+        $download = $this->download();
+        $cached = $this->cache->read($download['cacheKey']);
         $cachedSlugs = $this->decode($cached);
-        if ($cachedSlugs !== null && $this->isCacheFresh()) {
+        if ($cachedSlugs !== null && $this->isCacheFresh($download['cacheKey'])) {
             return $cachedSlugs;
         }
 
         $fallback = $cachedSlugs ?? [];
 
         try {
-            $response = $this->httpDownloader->get(self::URL);
+            $response = $this->httpDownloader->get($download['url'], $download['options']);
         } catch (TransportException) {
             return $fallback;
+        }
+
+        if ($this->eventDispatcher !== null) {
+            $postFileDownloadEvent = new PostFileDownloadEvent(
+                PluginEvents::POST_FILE_DOWNLOAD,
+                null,
+                null,
+                $download['url'],
+                'metadata',
+                ['response' => $response, 'wp-packages-api-client' => $this],
+            );
+            $this->eventDispatcher->dispatch($postFileDownloadEvent->getName(), $postFileDownloadEvent);
         }
 
         $body = $response->getBody();
@@ -79,16 +95,46 @@ class Client
             return $fallback;
         }
 
-        $this->cache->write(self::CACHE_KEY, $body);
+        $this->cache->write($download['cacheKey'], $body);
 
         return $fresh;
     }
 
-    private function isCacheFresh(): bool
+    private function isCacheFresh(string $cacheKey): bool
     {
-        $age = $this->cache->getAge(self::CACHE_KEY);
+        $age = $this->cache->getAge($cacheKey);
 
         return $age !== false && $age < self::CACHE_TTL_SECONDS;
+    }
+
+    /**
+     * @return array{url: non-empty-string, options: mixed[], cacheKey: string}
+     */
+    private function download(): array
+    {
+        $url = self::URL;
+        $options = [];
+        $cacheKey = $url;
+
+        if ($this->eventDispatcher === null) {
+            return ['url' => $url, 'options' => $options, 'cacheKey' => $cacheKey];
+        }
+
+        $preFileDownloadEvent = new PreFileDownloadEvent(
+            PluginEvents::PRE_FILE_DOWNLOAD,
+            $this->httpDownloader,
+            $url,
+            'metadata',
+            ['wp-packages-api-client' => $this],
+        );
+        $preFileDownloadEvent->setTransportOptions($options);
+        $this->eventDispatcher->dispatch($preFileDownloadEvent->getName(), $preFileDownloadEvent);
+
+        $url = $preFileDownloadEvent->getProcessedUrl();
+        $options = $preFileDownloadEvent->getTransportOptions();
+        $cacheKey = $preFileDownloadEvent->getCustomCacheKey() ?? $url;
+
+        return ['url' => $url, 'options' => $options, 'cacheKey' => $cacheKey];
     }
 
     /**

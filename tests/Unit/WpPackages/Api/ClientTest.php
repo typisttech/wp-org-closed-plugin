@@ -6,8 +6,12 @@ namespace Tests\Unit\WpPackages\Api;
 
 use Composer\Cache;
 use Composer\Downloader\TransportException;
+use Composer\EventDispatcher\EventDispatcher;
 use Composer\Factory;
 use Composer\IO\NullIO;
+use Composer\Plugin\PluginEvents;
+use Composer\Plugin\PostFileDownloadEvent;
+use Composer\Plugin\PreFileDownloadEvent;
 use Composer\Util\Http\Response;
 use Composer\Util\HttpDownloader;
 use Mockery;
@@ -23,8 +27,8 @@ describe(Client::class, static function (): void {
                 ->getHttpDownloader();
 
             $cache = Mockery::mock(Cache::class);
-            $cache->allows()->read('closed.json')->andReturnFalse();
-            $cache->allows()->write('closed.json', Mockery::any());
+            $cache->allows()->read(Client::URL)->andReturnFalse();
+            $cache->allows()->write(Client::URL, Mockery::any());
 
             $client = new Client($httpDownloader, $cache);
 
@@ -60,8 +64,8 @@ describe(Client::class, static function (): void {
 
         it('uses fresh cache without sending an HTTP request', function (): void {
             $cache = Mockery::mock(Cache::class);
-            $cache->allows()->read('closed.json')->andReturn('["spam-stopgap", "better-delete-revision"]');
-            $cache->allows()->getAge('closed.json')->andReturn(599);
+            $cache->allows()->read(Client::URL)->andReturn('["spam-stopgap", "better-delete-revision"]');
+            $cache->allows()->getAge(Client::URL)->andReturn(599);
 
             $httpDownloader = Mockery::mock(HttpDownloader::class);
             $httpDownloader->shouldNotReceive('get');
@@ -76,15 +80,15 @@ describe(Client::class, static function (): void {
 
         it('writes the fetched body to cache on a cache miss', function (): void {
             $cache = Mockery::mock(Cache::class);
-            $cache->allows()->read('closed.json')->andReturnFalse();
+            $cache->allows()->read(Client::URL)->andReturnFalse();
             $cache->expects()
-                ->write('closed.json', '["spam-stopgap"]')
+                ->write(Client::URL, '["spam-stopgap"]')
                 ->once();
 
             $response = new Response(['url' => Client::URL], 200, [], '["spam-stopgap"]');
             $httpDownloader = Mockery::mock(HttpDownloader::class);
             $httpDownloader->expects()
-                ->get(Client::URL)
+                ->get(Client::URL, [])
                 ->once()
                 ->andReturn($response);
 
@@ -95,13 +99,13 @@ describe(Client::class, static function (): void {
 
         it('resolves the closed list at most once', function (): void {
             $cache = Mockery::mock(Cache::class);
-            $cache->expects()->read('closed.json')->once()->andReturnFalse();
-            $cache->allows()->write('closed.json', '["spam-stopgap"]');
+            $cache->expects()->read(Client::URL)->once()->andReturnFalse();
+            $cache->allows()->write(Client::URL, '["spam-stopgap"]');
 
             $response = new Response(['url' => Client::URL], 200, [], '["spam-stopgap"]');
             $httpDownloader = Mockery::mock(HttpDownloader::class);
             $httpDownloader->expects()
-                ->get(Client::URL)
+                ->get(Client::URL, [])
                 ->once()
                 ->andReturn($response);
 
@@ -114,16 +118,16 @@ describe(Client::class, static function (): void {
 
         it('fetches a changed list from stale cache and overwrites the cache', function (): void {
             $cache = Mockery::mock(Cache::class);
-            $cache->allows()->read('closed.json')->andReturn('["spam-stopgap"]');
-            $cache->allows()->getAge('closed.json')->andReturn(600);
+            $cache->allows()->read(Client::URL)->andReturn('["spam-stopgap"]');
+            $cache->allows()->getAge(Client::URL)->andReturn(600);
             $cache->expects()
-                ->write('closed.json', '["better-delete-revision"]')
+                ->write(Client::URL, '["better-delete-revision"]')
                 ->once();
 
             $response = new Response(['url' => Client::URL], 200, [], '["better-delete-revision"]');
             $httpDownloader = Mockery::mock(HttpDownloader::class);
             $httpDownloader->expects()
-                ->get(Client::URL)
+                ->get(Client::URL, [])
                 ->once()
                 ->andReturn($response);
 
@@ -135,12 +139,12 @@ describe(Client::class, static function (): void {
 
         it('keeps using the stale cached list when the endpoint is unreachable', function (): void {
             $cache = Mockery::mock(Cache::class);
-            $cache->allows()->read('closed.json')->andReturn('["better-delete-revision"]');
-            $cache->allows()->getAge('closed.json')->andReturn(600);
+            $cache->allows()->read(Client::URL)->andReturn('["better-delete-revision"]');
+            $cache->allows()->getAge(Client::URL)->andReturn(600);
 
             $httpDownloader = Mockery::mock(HttpDownloader::class);
             $httpDownloader->expects()
-                ->get(Client::URL)
+                ->get(Client::URL, [])
                 ->andThrow(new TransportException('Connection refused'));
 
             $client = new Client($httpDownloader, $cache);
@@ -153,11 +157,11 @@ describe(Client::class, static function (): void {
 
         it('treats the plugin as not closed when unreachable with an empty cache', function (): void {
             $cache = Mockery::mock(Cache::class);
-            $cache->allows()->read('closed.json')->andReturnFalse();
+            $cache->allows()->read(Client::URL)->andReturnFalse();
 
             $httpDownloader = Mockery::mock(HttpDownloader::class);
             $httpDownloader->expects()
-                ->get(Client::URL)
+                ->get(Client::URL, [])
                 ->andThrow(new TransportException('Connection refused'));
 
             $client = new Client($httpDownloader, $cache);
@@ -169,13 +173,13 @@ describe(Client::class, static function (): void {
 
         it('keeps the cached list and skips caching an unusable response', function (?string $body): void {
             $cache = Mockery::mock(Cache::class);
-            $cache->allows()->read('closed.json')->andReturn('["better-delete-revision"]');
-            $cache->allows()->getAge('closed.json')->andReturn(600);
+            $cache->allows()->read(Client::URL)->andReturn('["better-delete-revision"]');
+            $cache->allows()->getAge(Client::URL)->andReturn(600);
 
             $response = new Response(['url' => Client::URL], 200, [], $body);
             $httpDownloader = Mockery::mock(HttpDownloader::class);
             $httpDownloader->expects()
-                ->get(Client::URL)
+                ->get(Client::URL, [])
                 ->andReturn($response);
 
             $client = new Client($httpDownloader, $cache);
@@ -195,21 +199,99 @@ describe(Client::class, static function (): void {
             // A valid but empty `[]` is distinct from a malformed body: it is
             // cached and returned, rather than falling back.
             $cache = Mockery::mock(Cache::class);
-            $cache->allows()->read('closed.json')->andReturnFalse();
+            $cache->allows()->read(Client::URL)->andReturnFalse();
             $cache->expects()
-                ->write('closed.json', '[]')
+                ->write(Client::URL, '[]')
                 ->once();
 
             $response = new Response(['url' => Client::URL], 200, [], '[]');
             $httpDownloader = Mockery::mock(HttpDownloader::class);
             $httpDownloader->expects()
-                ->get(Client::URL)
+                ->get(Client::URL, [])
                 ->once()
                 ->andReturn($response);
 
             $client = new Client($httpDownloader, $cache);
 
             expect($client->isClosed('spam-stopgap'))->toBeFalse();
+        });
+
+        it('dispatches file download events and uses the processed URL as the cache key', function (): void {
+            $processedUrl = 'https://mirror.example.com/closed.json';
+            $options = ['http' => ['header' => ['X-Mirror: 1']]];
+            $response = new Response(['url' => $processedUrl], 200, [], '["mirrored-plugin"]');
+
+            $cache = Mockery::mock(Cache::class);
+            $cache->allows()->read($processedUrl)->andReturnFalse();
+            $cache->expects()
+                ->write($processedUrl, '["mirrored-plugin"]')
+                ->once();
+
+            $httpDownloader = Mockery::mock(HttpDownloader::class);
+            $httpDownloader->expects()
+                ->get($processedUrl, $options)
+                ->once()
+                ->andReturn($response);
+
+            $eventDispatcher = Mockery::mock(EventDispatcher::class);
+            $eventDispatcher->expects()
+                ->dispatch(PluginEvents::PRE_FILE_DOWNLOAD, Mockery::on(
+                    static function (PreFileDownloadEvent $event) use ($processedUrl, $options): bool {
+                        expect($event->getProcessedUrl())->toBe(Client::URL)
+                            ->and($event->getType())->toBe('metadata');
+
+                        $event->setProcessedUrl($processedUrl);
+                        $event->setTransportOptions($options);
+
+                        return true;
+                    },
+                ))
+                ->once();
+            $eventDispatcher->expects()
+                ->dispatch(PluginEvents::POST_FILE_DOWNLOAD, Mockery::on(
+                    static fn (PostFileDownloadEvent $event): bool => $event->getUrl() === $processedUrl
+                        && $event->getType() === 'metadata'
+                        && ($event->getContext()['response'] ?? null) === $response,
+                ))
+                ->once();
+
+            $client = new Client($httpDownloader, $cache, $eventDispatcher);
+
+            expect($client->isClosed('mirrored-plugin'))->toBeTrue();
+        });
+
+        it('uses a custom cache key from the pre file download event', function (): void {
+            $customCacheKey = 'custom-closed-list.json';
+            $response = new Response(['url' => Client::URL], 200, [], '["custom-cache-plugin"]');
+
+            $cache = Mockery::mock(Cache::class);
+            $cache->allows()->read($customCacheKey)->andReturnFalse();
+            $cache->expects()
+                ->write($customCacheKey, '["custom-cache-plugin"]')
+                ->once();
+
+            $httpDownloader = Mockery::mock(HttpDownloader::class);
+            $httpDownloader->expects()
+                ->get(Client::URL, [])
+                ->once()
+                ->andReturn($response);
+
+            $eventDispatcher = Mockery::mock(EventDispatcher::class);
+            $eventDispatcher->expects()
+                ->dispatch(PluginEvents::PRE_FILE_DOWNLOAD, Mockery::on(
+                    static function (PreFileDownloadEvent $event) use ($customCacheKey): bool {
+                        $event->setCustomCacheKey($customCacheKey);
+
+                        return true;
+                    },
+                ))
+                ->once();
+            $eventDispatcher->allows()
+                ->dispatch(PluginEvents::POST_FILE_DOWNLOAD, Mockery::type(PostFileDownloadEvent::class));
+
+            $client = new Client($httpDownloader, $cache, $eventDispatcher);
+
+            expect($client->isClosed('custom-cache-plugin'))->toBeTrue();
         });
     });
 });

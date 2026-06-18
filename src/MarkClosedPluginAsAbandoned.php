@@ -31,6 +31,7 @@ readonly class MarkClosedPluginAsAbandoned
             new Client(
                 $composer->getLoop()->getHttpDownloader(),
                 $cache,
+                $composer->getEventDispatcher(),
             ),
             $io,
         );
