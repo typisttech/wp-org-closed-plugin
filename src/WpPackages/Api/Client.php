@@ -8,7 +8,7 @@ use Composer\Cache;
 use Composer\Downloader\TransportException;
 use Composer\Util\HttpDownloader;
 
-final class Client
+class Client
 {
     /**
      * The wp-packages.org endpoint that returns every closed wp-plugin slug as

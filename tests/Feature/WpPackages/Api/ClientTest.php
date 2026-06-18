@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\WpPackages\Api;
 
-use Composer\Cache as ComposerCache;
+use Composer\Cache;
 use Composer\Downloader\TransportException;
 use Composer\Util\Http\Response;
 use Composer\Util\HttpDownloader;
@@ -28,7 +28,7 @@ describe(Client::class, static function (): void {
         it('returns true if and only if the plugin is closed', function (string $slug, bool $expected): void {
             $httpDownloader = $this->loop()->getHttpDownloader();
 
-            $cache = Mockery::mock(ComposerCache::class);
+            $cache = Mockery::mock(Cache::class);
             $cache->allows()->read('closed.json')->andReturnFalse();
             $cache->allows()->getAge('closed.json')->andReturnFalse();
             $cache->allows()->write('closed.json', Mockery::any());
@@ -52,7 +52,7 @@ describe(Client::class, static function (): void {
 
         it('returns false for an empty or whitespace-only slug without any I/O', function (string $slug): void {
             $httpDownloader = Mockery::spy(HttpDownloader::class);
-            $cache = Mockery::spy(ComposerCache::class);
+            $cache = Mockery::spy(Cache::class);
 
             $client = new Client($httpDownloader, $cache);
 
@@ -66,7 +66,7 @@ describe(Client::class, static function (): void {
         ]);
 
         it('revalidates with a derived If-Modified-Since and serves the cache on 304', function (): void {
-            $cache = Mockery::mock(ComposerCache::class);
+            $cache = Mockery::mock(Cache::class);
             $cache->allows()->read('closed.json')->andReturn('["spam-stopgap", "better-delete-revision"]');
             $cache->allows()->getAge('closed.json')->andReturn(120);
 
@@ -98,7 +98,7 @@ describe(Client::class, static function (): void {
         });
 
         it('writes the fetched body to cache on a cache miss', function (): void {
-            $cache = Mockery::mock(ComposerCache::class);
+            $cache = Mockery::mock(Cache::class);
             $cache->allows()->read('closed.json')->andReturnFalse();
             $cache->allows()->getAge('closed.json')->andReturnFalse();
             $cache->expects()
@@ -117,7 +117,7 @@ describe(Client::class, static function (): void {
         });
 
         it('resolves the closed list at most once', function (): void {
-            $cache = Mockery::mock(ComposerCache::class);
+            $cache = Mockery::mock(Cache::class);
             $cache->expects()->read('closed.json')->once()->andReturnFalse();
             $cache->allows()->getAge('closed.json')->andReturnFalse();
             $cache->allows()->write('closed.json', '["spam-stopgap"]');
@@ -136,7 +136,7 @@ describe(Client::class, static function (): void {
         });
 
         it('fetches a changed list and overwrites the cache', function (): void {
-            $cache = Mockery::mock(ComposerCache::class);
+            $cache = Mockery::mock(Cache::class);
             $cache->allows()->read('closed.json')->andReturn('["spam-stopgap"]');
             $cache->allows()->getAge('closed.json')->andReturn(120);
             $cache->expects()
@@ -155,7 +155,7 @@ describe(Client::class, static function (): void {
         });
 
         it('keeps using the cached list when the endpoint is unreachable', function (): void {
-            $cache = Mockery::mock(ComposerCache::class);
+            $cache = Mockery::mock(Cache::class);
             $cache->allows()->read('closed.json')->andReturn('["better-delete-revision"]');
             $cache->allows()->getAge('closed.json')->andReturn(120);
 
@@ -173,7 +173,7 @@ describe(Client::class, static function (): void {
         });
 
         it('treats the plugin as not closed when unreachable with an empty cache', function (): void {
-            $cache = Mockery::mock(ComposerCache::class);
+            $cache = Mockery::mock(Cache::class);
             $cache->allows()->read('closed.json')->andReturnFalse();
             $cache->allows()->getAge('closed.json')->andReturnFalse();
 
@@ -190,7 +190,7 @@ describe(Client::class, static function (): void {
         });
 
         it('keeps the cached list and skips caching an unusable response', function (?string $body): void {
-            $cache = Mockery::mock(ComposerCache::class);
+            $cache = Mockery::mock(Cache::class);
             $cache->allows()->read('closed.json')->andReturn('["better-delete-revision"]');
             $cache->allows()->getAge('closed.json')->andReturn(120);
 
@@ -215,7 +215,7 @@ describe(Client::class, static function (): void {
         it('caches a legitimately empty closed list', function (): void {
             // A valid but empty `[]` is distinct from a malformed body: it is
             // cached and returned, rather than falling back.
-            $cache = Mockery::mock(ComposerCache::class);
+            $cache = Mockery::mock(Cache::class);
             $cache->allows()->read('closed.json')->andReturnFalse();
             $cache->allows()->getAge('closed.json')->andReturnFalse();
             $cache->expects()
