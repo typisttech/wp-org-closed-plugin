@@ -30,5 +30,6 @@ cmp stdout golden.out
 -- golden.out --
 {
     "advisories": [],
-    "abandoned": []
+    "abandoned": [],
+    "filter": []
 }

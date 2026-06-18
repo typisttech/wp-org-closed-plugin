@@ -1,12 +1,21 @@
 ## Commands
 
 ```bash
+# Run all tests, PHP & integration
+mise run test
+
 # Run PHP tests
-composer test
+mise run test:php
 
 # Integration tests use the testscript framework; scripts live in `testdata/script/*.txtar`
-GOFLAGS=-mod=mod go test -count=1 -shuffle=on ./...
+mise run test:e2e
+
+# Regenerate testscript golden files when output intentionally changed
+mise run gen
 
 # Run linters
-composer lint
+mise run lint
+
+# Format & fix linting issues
+mise run lint:fix
 ```
