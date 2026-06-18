@@ -65,9 +65,7 @@
         "plugin-optional": true
     },
     "scripts": {
-        "lint": "phpstan analyse",
-        "test": "pest",
-        "test:feature": "pest --group=feature",
-        "test:unit": "pest --group=unit"
+        "phpstan": "phpstan",
+        "pest": "pest"
     }
 }
