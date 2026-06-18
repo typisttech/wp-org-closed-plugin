@@ -9,6 +9,9 @@ declare(strict_types=1);
 |
 */
 
+pest()->group('feature')
+    ->in('Feature');
+
 pest()->group('unit')
     ->in('Unit');
 
