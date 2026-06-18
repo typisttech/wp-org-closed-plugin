@@ -34,18 +34,13 @@ class Client
     public function isClosed(string $slug): bool
     {
         $slug = trim($slug);
+        if ($slug === '') {
+            return false;
+        }
 
-        return $slug !== '' && isset($this->closedSlugs()[$slug]);
-    }
+        $this->closedSlugs ??= $this->load();
 
-    /**
-     * The closed slugs as a set keyed by slug, resolved at most once per run.
-     *
-     * @return array<string, true>
-     */
-    private function closedSlugs(): array
-    {
-        return $this->closedSlugs ??= $this->load();
+        return array_key_exists($slug, $this->closedSlugs);
     }
 
     /**
