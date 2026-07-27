@@ -30,7 +30,7 @@ jobs:
           sparse-checkout: composer.json
           sparse-checkout-cone-mode: false
 
-      - uses: typisttech/php-matrix-action@65bbdaffdb0be005bda1ee30b7815b8dbf8b00d1 # v3.0.1
+      - uses: typisttech/php-matrix-action@0545a7d54db2c7be158b615b1e7f458ae6e99ad3 # v3.0.2
         id: php-matrix
 
   test:
