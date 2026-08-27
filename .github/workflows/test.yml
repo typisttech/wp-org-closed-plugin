@@ -24,13 +24,13 @@ jobs:
       versions: ${{ steps.php-matrix.outputs.versions }}
       highest: ${{ steps.php-matrix.outputs.highest }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: composer.json
           sparse-checkout-cone-mode: false
 
-      - uses: typisttech/php-matrix-action@65bbdaffdb0be005bda1ee30b7815b8dbf8b00d1 # v3.0.1
+      - uses: typisttech/php-matrix-action@0545a7d54db2c7be158b615b1e7f458ae6e99ad3 # v3.0.2
         id: php-matrix
 
   test:
@@ -53,7 +53,7 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -91,7 +91,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -121,7 +121,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install --no-install-recommends --yes subversion
 
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -131,7 +131,7 @@ jobs:
           tools: composer:${{ matrix.composer-version }}
           coverage: 'none'
 
-      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: 'go.mod'
 

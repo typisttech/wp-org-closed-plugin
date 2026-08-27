@@ -17,10 +17,12 @@ concurrency:
 
 permissions:
   contents: read
+  security-events: write
+  actions: read
 
 jobs:
   php:
-    uses: typisttech/.github/.github/workflows/audit-php.yml@41e02b4d980e4ad9231ecdc6a0230b1b0a27178d # v5.5.3
+    uses: typisttech/.github/.github/workflows/audit-php.yml@7988918764384c842ba3204778ad2b51b33be9c3 # v6.1.7
 
   go:
-    uses: typisttech/.github/.github/workflows/audit-go.yml@41e02b4d980e4ad9231ecdc6a0230b1b0a27178d # v5.5.3
+    uses: typisttech/.github/.github/workflows/audit-go.yml@7988918764384c842ba3204778ad2b51b33be9c3 # v6.1.7

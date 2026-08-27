@@ -65,7 +65,7 @@
         "plugin-optional": true
     },
     "scripts": {
-        "phpstan": "phpstan",
-        "pest": "pest"
+        "pest": "pest",
+        "phpstan": "phpstan"
     }
 }
