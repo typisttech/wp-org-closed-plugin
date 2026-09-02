@@ -48,36 +48,14 @@ class Plugin implements EventSubscriberInterface, PluginInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PackageEvents::PRE_PACKAGE_INSTALL => [
-                ['warmCache', PHP_INT_MAX - 500],
-                ['markClosedAsAbandoned', PHP_INT_MAX - 1000],
-            ],
-            PackageEvents::PRE_PACKAGE_UPDATE => [
-                ['warmCache', PHP_INT_MAX - 500],
-                ['markClosedAsAbandoned', PHP_INT_MAX - 1000],
-            ],
+            PackageEvents::PRE_PACKAGE_INSTALL => ['markClosedAsAbandoned', PHP_INT_MAX - 1000],
+            PackageEvents::PRE_PACKAGE_UPDATE => ['markClosedAsAbandoned', PHP_INT_MAX - 1000],
 
             ScriptEvents::POST_INSTALL_CMD => ['markClosedLockedPackagesIfNotAlready', PHP_INT_MAX - 1000],
             ScriptEvents::POST_UPDATE_CMD => ['markClosedLockedPackagesIfNotAlready', PHP_INT_MAX - 1000],
 
             PluginEvents::PRE_COMMAND_RUN => ['warnLocked', PHP_INT_MAX - 1000],
         ];
-    }
-
-    public function warmCache(PackageEvent $event): void
-    {
-        $packages = array_map(
-            static fn ($operation) => match (true) {
-                $operation instanceof InstallOperation => $operation->getPackage(),
-                $operation instanceof UpdateOperation => $operation->getTargetPackage(),
-                default => null,
-            },
-            $event->getOperations(),
-        );
-        $packages = array_filter($packages, static fn ($package) => $package instanceof CompletePackageInterface);
-        $packages = array_filter($packages, static fn ($package) => ! $package->isAbandoned());
-
-        $this->markClosedAsAbandoned->warmCache(...$packages);
     }
 
     public function markClosedAsAbandoned(PackageEvent $event): void
@@ -109,18 +87,18 @@ class Plugin implements EventSubscriberInterface, PluginInterface
             ->getLocker()
             ->getLockedRepository(true);
 
-        $packages = $lockedRepository->getPackages();
-        $packages = array_filter($packages, static fn ($package) => $package instanceof CompletePackage);
-        $packages = array_filter($packages, static fn ($package) => ! $package->isAbandoned());
         $packages = array_filter(
-            $packages,
-            fn ($package) => ! in_array($package->getPrettyName(), $this->marked, true),
+            $lockedRepository->getPackages(),
+            static fn ($package) => $package instanceof CompletePackage && ! $package->isAbandoned(),
         );
 
-        $this->markClosedAsAbandoned->warmCache(...$packages);
-
         foreach ($packages as $package) {
-            $this->marked[] = $package->getPrettyName();
+            $prettyName = $package->getPrettyName();
+            if (in_array($prettyName, $this->marked, true)) {
+                continue;
+            }
+
+            $this->marked[] = $prettyName;
             $this->markClosedAsAbandoned->__invoke($package);
         }
     }
