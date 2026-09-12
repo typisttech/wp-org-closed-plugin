@@ -20,6 +20,10 @@ updates:
     schedule:
       interval: daily
     cooldown:
-      default-days: 3
-      exclude:
+      default-days: 0
+      include:
         - "typisttech/*"
+    groups:
+      typisttech:
+        patterns:
+          - "typisttech/*"
