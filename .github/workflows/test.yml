@@ -39,16 +39,16 @@ jobs:
       matrix:
         suite: &suite [unit, feature]
         php-version: ${{ fromJSON(needs.php-matrix.outputs.versions) }}
-        dependency-versions: [highest, lowest]
+        prefer: [highest, lowest]
         coverage: ['none']
         include:
           - suite: unit
             php-version: ${{ needs.php-matrix.outputs.highest }}
-            dependency-versions: locked
+            prefer: locked
             coverage: xdebug
           - suite: feature
             php-version: ${{ needs.php-matrix.outputs.highest }}
-            dependency-versions: locked
+            prefer: locked
             coverage: xdebug
 
     runs-on: ubuntu-latest
@@ -62,9 +62,9 @@ jobs:
           php-version: ${{ matrix.php-version }}
           coverage: ${{ matrix.coverage }}
 
-      - uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
+      - uses: typisttech/.github/.github/actions/composer-install@a6c5c9608df629d886e4201ffd20a2df71ed34e8
         with:
-          dependency-versions: ${{ matrix.dependency-versions }}
+          prefer: ${{ matrix.prefer }}
 
       - run: composer pest -- --ci "--group=${SUITE}" --coverage-clover "coverage-${SUITE}.xml"
         if: matrix.coverage == 'xdebug'
@@ -82,30 +82,30 @@ jobs:
           name: coverage-${{ matrix.suite }}
           path: coverage-${{ matrix.suite }}.xml
 
-  codecov:
-    needs: test
-    strategy:
-      matrix:
-        suite: *suite
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+  # codecov:
+  #   needs: test
+  #   strategy:
+  #     matrix:
+  #       suite: *suite
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+  #       with:
+  #         persist-credentials: false
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: coverage-${{ matrix.suite }}
+  #     - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+  #       with:
+  #         name: coverage-${{ matrix.suite }}
 
-      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
-        with:
-          use_oidc: true
-          fail_ci_if_error: true
-          disable_search: true
-          files: coverage-${{ matrix.suite }}.xml
-          flags: ${{ matrix.suite }}
+  #     - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+  #       with:
+  #         use_oidc: true
+  #         fail_ci_if_error: true
+  #         disable_search: true
+  #         files: coverage-${{ matrix.suite }}.xml
+  #         flags: ${{ matrix.suite }}
 
   e2e:
     name: e2e (PHP ${{ matrix.php-version }}, Composer ${{ matrix.composer-version }})

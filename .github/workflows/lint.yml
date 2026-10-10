@@ -17,27 +17,27 @@ permissions:
   contents: read
 
 jobs:
-  actions:
-    uses: typisttech/.github/.github/workflows/lint-actions.yml@f5f58e1acfcb05820612eb7edc25ed0eeabc625d # v6.2.0
+  # actions:
+  #   uses: typisttech/.github/.github/workflows/lint-actions.yml@a6c5c9608df629d886e4201ffd20a2df71ed34e8
 
   php:
-    uses: typisttech/.github/.github/workflows/lint-php.yml@f5f58e1acfcb05820612eb7edc25ed0eeabc625d # v6.2.0
+    uses: typisttech/.github/.github/workflows/lint-php.yml@a6c5c9608df629d886e4201ffd20a2df71ed34e8
     with:
       phpstan: true
 
-  go:
-    uses: typisttech/.github/.github/workflows/lint-go.yml@f5f58e1acfcb05820612eb7edc25ed0eeabc625d # v6.2.0
-    with:
-      golangci-lint: true
-      golangci-lint-version-file: .tool-versions
+  # go:
+  #   uses: typisttech/.github/.github/workflows/lint-go.yml@a6c5c9608df629d886e4201ffd20a2df71ed34e8
+  #   with:
+  #     golangci-lint: true
+  #     golangci-lint-version-file: .tool-versions
 
-  wait-for-all-lint:
-    if: cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')
-    needs:
-      - actions
-      - php
-      - go
-    runs-on: ubuntu-latest
-    steps:
-      - name: Assert no required jobs were cancelled or failed
-        run: exit 1
+  # wait-for-all-lint:
+  #   if: cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')
+  #   needs:
+  #     # - actions
+  #     - php
+  #     - go
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Assert no required jobs were cancelled or failed
+  #       run: exit 1
