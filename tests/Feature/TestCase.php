@@ -13,7 +13,8 @@ class TestCase extends BaseTestCase
 {
     protected function loop(): Loop
     {
-        return Factory::create(new NullIO, null, true, true)
+        $factory = new Factory();
+        return $factory->createComposer(new NullIO, null, true, null, false, true)
             ->getLoop();
     }
 }
