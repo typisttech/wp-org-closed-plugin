@@ -14,4 +14,8 @@
             <directory>./src</directory>
         </include>
     </source>
+
+    <php>
+        <env name="COMPOSER_AUTH" value="" force="true" />
+    </php>
 </phpunit>
