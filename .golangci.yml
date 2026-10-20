@@ -13,10 +13,12 @@ linters:
     - asciicheck
     - bidichk
     - bodyclose
+    # - canonicalheader # Wait for https://github.com/golangci/golangci-lint/issues/6829
     - containedctx
     - contextcheck
     - copyloopvar
     - cyclop
+    - decorder
     - depguard
     - dogsled
     - dupl
@@ -31,18 +33,60 @@ linters:
     - fatcontext
     - forcetypeassert
     - gocheckcompilerdirectives
+    - gochecknoglobals
     - gochecknoinits
+    - gochecksumtype
+    - gocognit
+    - goconst
     - gocritic
+    - gocyclo
     - godoclint
     - godot
+    - gomoddirectives
+    - goprintffuncname
     - gosec
+    - gosmopolitan
+    - grouper
+    - iface
+    - importas
+    - inamedparam
+    - ineffassign
+    - interfacebloat
+    - intrange
+    - iotamixing
+    - loggercheck
+    - makezero
+    - mirror
     - misspell
+    - modernize
+    - musttag
+    - nestif
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - noctx
     - nolintlint
     - nonamedreturns
+    - nosprintfhostport
+    - perfsprint
+    - predeclared
+    - promlinter
+    - reassign
+    - recvcheck
     - revive
     - sloglint
+    - spancheck
+    - tagalign
+    - testableexamples
+    - thelper
+    - unconvert
     - unparam
+    - unused
     - usestdlibvars
+    - usetesting
+    - wastedassign
+    - whitespace
+    - wrapcheck
 
   settings:
     govet:
@@ -79,6 +123,9 @@ linters:
         - emptyStringTest
         - preferStringWriter
 
+    gocyclo:
+      min-complexity: 10
+
     godoclint:
       enable:
         - max-len
@@ -93,17 +140,36 @@ linters:
       excludes:
         - G104 # Handled by errcheck
 
+    iface:
+      enable:
+        - identical
+        - unused
+        - opaque
+        - unusedmethod
+
     nolintlint:
       require-specific: true
 
     revive:
+      enable-default-rules: true
       rules:
         - name: exported
           disabled: true
 
+        - name: package-comments
+          disabled: true
+
+    wrapcheck:
+      extra-ignore-sigs:
+        - (context.Context).Err()
+
   exclusions:
     generated: disable
     warn-unused: true
+    rules:
+      - path: _test\.go
+        linters:
+          - wrapcheck
 
 formatters:
   enable:
@@ -111,7 +177,13 @@ formatters:
     - gofmt
     - gofumpt
     - goimports
+    - golines
 
   settings:
     gofumpt:
-      extra-rules: true
+      extra:
+        group-params: true
+        clothe-returns: true
+        balance-calls: true
+    golines:
+      max-len: 120
