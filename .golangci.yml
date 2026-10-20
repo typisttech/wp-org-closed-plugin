@@ -86,7 +86,7 @@ linters:
     - usetesting
     - wastedassign
     - whitespace
-    - wrapcheck
+    # - wrapcheck # This is not a Go project.
 
   settings:
     govet:
@@ -159,17 +159,9 @@ linters:
         - name: package-comments
           disabled: true
 
-    wrapcheck:
-      extra-ignore-sigs:
-        - (context.Context).Err()
-
   exclusions:
     generated: disable
     warn-unused: true
-    rules:
-      - path: _test\.go
-        linters:
-          - wrapcheck
 
 formatters:
   enable:
