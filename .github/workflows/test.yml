@@ -32,8 +32,8 @@ jobs:
           sparse-checkout: composer.json
           sparse-checkout-cone-mode: false
 
-      - uses: typisttech/php-matrix-action@73b41f402280305866c655b5a2485d5c9d7a36bc # v4.0.0
-        id: php-matrix
+      - id: php-matrix
+        uses: typisttech/php-matrix-action@73b41f402280305866c655b5a2485d5c9d7a36bc # v4.0.0
 
   test:
     needs:
@@ -75,18 +75,18 @@ jobs:
         with:
           prefer: ${{ matrix.prefer }}
 
-      - run: composer pest -- --ci --group="${SUITE}" --coverage-clover="coverage-${SUITE}.xml"
-        if: matrix.coverage == 'xdebug'
+      - if: matrix.coverage == 'xdebug'
+        run: composer pest -- --ci --group="${SUITE}" --coverage-clover="coverage-${SUITE}.xml"
         env:
           SUITE: ${{ matrix.suite }}
 
-      - run: composer pest -- --ci --group="${SUITE}"
-        if: matrix.coverage != 'xdebug'
+      - if: matrix.coverage != 'xdebug'
+        run: composer pest -- --ci --group="${SUITE}"
         env:
           SUITE: ${{ matrix.suite }}
 
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: matrix.coverage == 'xdebug'
+      - if: matrix.coverage == 'xdebug'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-${{ matrix.suite }}
           path: coverage-${{ matrix.suite }}.xml
@@ -142,8 +142,8 @@ jobs:
     env:
       GOFLAGS: '-mod=mod'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        id: checkout
+      - id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
         background: true
