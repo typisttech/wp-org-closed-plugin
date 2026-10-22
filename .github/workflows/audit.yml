@@ -23,14 +23,14 @@ jobs:
       security-events: write
       contents: read
       actions: read
-    uses: typisttech/.github/.github/workflows/audit-php.yml@35e5494fea692807fa0060dce74b5ed55cf5fd3a # v9.1.1
+    uses: typisttech/.github/.github/workflows/audit-php.yml@e8fb21eeafb5416e1d47d71d5ac656b61e524af1 # v9.3.0
 
   go:
     permissions:
       security-events: write
       contents: read
       actions: read
-    uses: typisttech/.github/.github/workflows/audit-go.yml@35e5494fea692807fa0060dce74b5ed55cf5fd3a # v9.1.1
+    uses: typisttech/.github/.github/workflows/audit-go.yml@e8fb21eeafb5416e1d47d71d5ac656b61e524af1 # v9.3.0
 
   wait-for-all-audit:
     if: cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')
