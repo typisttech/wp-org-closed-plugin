@@ -73,10 +73,10 @@ Package wpackagist-plugin/my-closed-plugin is abandoned because https://wordpres
 
 ## Why
 
-When a plugin is closed on WordPress.org, [WPackagist](https://wpackagist.org/) not always remove it from its database immediately.
-As a result, some closed plugins remain available for installation via WPackagist.
+When a plugin is closed on WordPress.org, Composer repositories (e.g: [WPackagist](https://wpackagist.org/) & [WP Packages](https://wp-packages.org/) not always remove it from its database immediately.
+Worse still, even after the Composer repositories removed it., a closed plugin might persists in `composer.lock` with references to download.wordPress.org endpoint and [WordPress plugin subversion repository](https://plugins.svn.wordpress.org/)
+As a result, closed plugins remain installable.
 
-Moreover, even if a plugin is closed, its existing versions are still downloadable from WordPress.org and the subversion repository.
 ```json
 {
   "repositories": [
@@ -87,7 +87,7 @@ Moreover, even if a plugin is closed, its existing versions are still downloadab
         "version": "1.0",
         "source": {
           "type": "svn",
-          "url": "https://plugins.svn.wordpress.org/my-closed-plugin/",
+          "url": "https://plugins.svn.wordpress.org/my-closed-plugin/", // subversion repository
           "reference": "tags/1.0"
         }
       }
@@ -99,7 +99,7 @@ Moreover, even if a plugin is closed, its existing versions are still downloadab
         "version": "1.0",
         "dist": {
           "type": "zip",
-          "url": "https://downloads.wordpress.org/plugin/your-closed-plugin.1.0.zip"
+          "url": "https://downloads.wordpress.org/plugin/your-closed-plugin.1.0.zip" // download.wordPress.org endpoint
         }
       }
     }
@@ -107,7 +107,7 @@ Moreover, even if a plugin is closed, its existing versions are still downloadab
 }
 ```
 
-To catch these closed plugins, `WP Org Closed Plugin` queries [WordPress.org API](https://codex.wordpress.org/WordPress.org_API#Plugins) to check whether a plugin is closed and mark them as abandoned in Composer.
+To catch these closed plugins, `WP Org Closed Plugin` queries [WP Packages API](https://wp-packages.org/api/packages/wp-plugin/closed) for the list of plugins closed on WordPress.org and marks them as abandoned in Composer.
 
 ## What to do when a plugin is closed?
 
@@ -150,50 +150,6 @@ Skipped checking for closed plugins because of --locked.
 ```
 
 You should run `composer audit` without `--locked` to check for closed plugins.
-
-### Cache
-
-WordPress.org API responses are cached for 10 minutes.
-
-If you must clear the cache, delete the `<composer-cache-dir>/wp-org-closed-plugin` directory.
-
-```sh
-rm -rf $(composer config cache-dir)/wp-org-closed-plugin
-```
-
-### Why `allow_self_signed` when connecting to `https://api.wordpress.org`?
-
-> [!IMPORTANT]
-> **Help Wanted!**
->
-> Please send pull requests if you know how to get around the error:
->
-> ```console
-> $ curl --http3-only 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
-> curl: (56) ngtcp2_conn_writev_stream returned error: ERR_DRAINING
-> ```
-
-It is a hack to disallow HTTP/3, forcing `HttpDownloader` to use `RemoteFilesystem` instead of `CurlDownloader`.
-
-I suspect api.wordpress.org does not properly support HTTP/3:
-
-```console
-$ curl --http1.1 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
-...json response
-
-$ curl --http2 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
-...json response
-
-$ curl --http3-only 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=better-delete-revision'
-...sometimes json response
-...but most of the time ERR_DRAINING
-curl: (56) ngtcp2_conn_writev_stream returned error: ERR_DRAINING
-```
-
-See:
-- https://github.com/composer/composer/pull/12363
-- https://github.com/composer/composer/blob/f5854b140ca27164d352ce30deece798acf3e36b/src/Composer/Util/HttpDownloader.php#L537
-- https://github.com/typisttech/wp-org-closed-plugin/pull/22
 
 > [!TIP]
 > **Hire Tang Rufus!**
