@@ -2,7 +2,10 @@ module github.com/typisttech/wp-org-closed-plugin
 
 go 1.27.4
 
-require github.com/rogpeppe/go-internal v1.16.0
+require (
+	github.com/rogpeppe/go-internal v1.16.0
+	golang.org/x/mod v0.39.0
+)
 
 require (
 	golang.org/x/sys v0.47.0 // indirect
