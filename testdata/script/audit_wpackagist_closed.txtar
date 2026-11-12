@@ -3,7 +3,8 @@ exec composer install
 
 ! exec composer audit --format=json
 
-cmp stdout golden.out
+[composer:2.11] cmp stdout golden.out
+[!composer:2.11] cmp stdout golden.v2.10.out
 
 -- composer.json --
 {
@@ -28,6 +29,15 @@ cmp stdout golden.out
 }
 
 -- golden.out --
+{
+    "advisories": [],
+    "abandoned": {
+        "wpackagist-plugin/wp-mobi": null
+    },
+    "filter": [],
+    "cooldown": []
+}
+-- golden.v2.10.out --
 {
     "advisories": [],
     "abandoned": {

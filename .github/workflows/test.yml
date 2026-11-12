@@ -135,6 +135,7 @@ jobs:
       matrix:
         php-version: ${{ fromJSON(needs.php-matrix.outputs.versions) }}
         composer-version:
+          - '2.11'
           - '2.10'
     runs-on: ubuntu-26.04
     env:
@@ -167,6 +168,8 @@ jobs:
       - wait-all:
 
       - run: go test -count=1 -shuffle=on ./...
+        env:
+          COMPOSER_VERSION: ${{ matrix.composer-version }}
 
   wait-for-all-test:
     if: cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')

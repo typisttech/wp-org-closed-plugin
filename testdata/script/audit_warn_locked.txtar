@@ -3,7 +3,9 @@ exec composer install
 
 exec composer audit --locked --format=json
 
-cmp stdout golden.out
+[composer:2.11] cmp stdout golden.out
+[!composer:2.11] cmp stdout golden.v2.10.out
+
 stderr 'Skipped checking for closed plugins because of --locked\.'
 
 -- composer.json --
@@ -36,6 +38,13 @@ stderr 'Skipped checking for closed plugins because of --locked\.'
 }
 
 -- golden.out --
+{
+    "advisories": [],
+    "abandoned": [],
+    "filter": [],
+    "cooldown": []
+}
+-- golden.v2.10.out --
 {
     "advisories": [],
     "abandoned": [],
