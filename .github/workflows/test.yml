@@ -69,7 +69,7 @@ jobs:
             php-version: ${{ matrix.php-version }}
             coverage: ${{ matrix.coverage }}
 
-      - uses: typisttech/.github/.github/actions/composer-install@9028c3cd5e28ea757373075b8aeedd97cd045767 # v9.3.2
+      - uses: typisttech/.github/.github/actions/composer-install@d07e39f5248e110bc9f91de14346175ba0a0c270 # v9.3.3
         with:
           prefer: ${{ matrix.prefer }}
 
