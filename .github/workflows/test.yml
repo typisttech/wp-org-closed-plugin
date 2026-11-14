@@ -60,14 +60,15 @@ jobs:
             coverage: xdebug
     runs-on: ubuntu-26.04
     steps:
-      - parallel:
-        - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-          with:
-            persist-credentials: false
-        - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
-          with:
-            php-version: ${{ matrix.php-version }}
-            coverage: ${{ matrix.coverage }}
+      # Not running in background because of unknown GitHub Actions issues.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: ${{ matrix.coverage }}
 
       - uses: typisttech/.github/.github/actions/composer-install@d07e39f5248e110bc9f91de14346175ba0a0c270 # v9.3.3
         with:
@@ -141,31 +142,24 @@ jobs:
     env:
       GOFLAGS: '-mod=mod'
     steps:
-      - id: checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Not running in background because of unknown GitHub Actions issues.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-        background: true
+
+      - run: |
+          sudo apt-get update && \
+          sudo apt-get install --no-install-recommends --yes subversion
 
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ matrix.php-version }}
           tools: composer:${{ matrix.composer-version }}
           coverage: 'none'
-        background: true
-
-      - run: |
-          sudo apt-get update && \
-          sudo apt-get install --no-install-recommends --yes subversion
-        background: true
-
-      - wait: checkout
 
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: 'go.mod'
-
-      - wait-all:
 
       - run: go test -count=1 -shuffle=on ./...
         env:
