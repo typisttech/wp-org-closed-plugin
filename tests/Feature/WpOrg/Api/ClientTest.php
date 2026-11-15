@@ -4,90 +4,110 @@ declare(strict_types=1);
 
 namespace Tests\Feature\WpOrg\Api;
 
+use Composer\Downloader\TransportException;
+use Composer\Util\Http\Response;
 use Composer\Util\HttpDownloader;
 use Mockery;
+use RuntimeException;
+use TypistTech\WpOrgClosedPlugin\WpOrg\Api\ArrayCache;
 use TypistTech\WpOrgClosedPlugin\WpOrg\Api\CacheInterface;
 use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Client;
 
+use function React\Promise\reject;
+use function React\Promise\resolve;
+
 covers(Client::class);
 
-describe(Client::class, static function (): void {
-    describe('::isClosed()', static function (): void {
-        dataset('many_slugs', static function (): array {
-            return [
-                // Closed.
-                'author_request_permanent' => ['paid-memberships-pro', true],
-                'author_request_permanent_2' => ['be-media-from-production', true],
-                'guideline_violation' => ['text-control', true],
-                'guideline_violation_permanent' => ['no-longer-in-directory', true],
-                'licensing-trademark-violation' => ['tiutiu-facebook-friends-widget', true],
-                'security_issue' => ['better-delete-revision', true],
-                'security_issue_2' => ['browser-bookmark', true],
-                'unknown' => ['rumgallery', true],
-                'unknown_permanent' => ['link-linker', true],
-                'unused' => ['auto-translator', true],
-                'unused_permanent' => ['spam-stopgap', true],
-                'unused_permanent_2' => ['update-linkroll', true],
+describe(Client::class, function (): void {
+    describe('::isClosed()', function (): void {
+        it('interprets and caches HTTP responses', function (?int $status, ?string $body, bool $expected): void {
+            $httpDownloader = Mockery::mock(HttpDownloader::class);
+            if ($status === 200) {
+                $response = resolve(new Response(['url' => 'https://api.wordpress.org'], 200, [], $body));
+            } else {
+                $error = new TransportException;
+                $error->setStatusCode($status);
+                $error->setResponse($body);
+                $response = reject($error);
+            }
 
-                // Not closed.
-                'open' => ['hello-dolly', false],
-                'not_found' => ['not-found-foo-bar-baz-qux', false],
-                'empty_slug' => ['', false],
-                'whitespace' => ['      ', false],
-            ];
+            $httpDownloader->expects()
+                ->add(
+                    'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=example-plugin',
+                    ['ssl' => ['allow_self_signed' => true]],
+                )
+                ->andReturn($response);
+
+            $cache = new ArrayCache;
+            $client = new Client($httpDownloader, $this->loop(), $cache);
+
+            expect($client->isClosed(' example-plugin '))->toBe($expected)
+                ->and($cache->read('example-plugin'))->toBe($expected);
+        })->with([
+            'closed' => [404, '{"error":"closed"}', true],
+            'open' => [200, '{"name":"example"}', false],
+            'not found' => [404, '{"error":"not found"}', false],
+            'malformed response' => [404, '{', false],
+            'empty response' => [404, null, false],
+            'server error' => [500, '{"error":"closed"}', false],
+            'network error' => [null, null, false],
+        ]);
+
+        it('treats unexpected request errors as open', function (): void {
+            $httpDownloader = Mockery::mock(HttpDownloader::class);
+            $httpDownloader->expects()
+                ->add(
+                    'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=example-plugin',
+                    Mockery::any(),
+                )
+                ->andReturn(reject(new RuntimeException('Request failed')));
+            $cache = new ArrayCache;
+            $client = new Client($httpDownloader, $this->loop(), $cache);
+
+            expect($client->isClosed('example-plugin'))->toBeFalse()
+                ->and($cache->read('example-plugin'))->toBeFalse();
         });
 
-        dataset('slugs', static function (): array {
-            return [
-                // Closed.
-                'unused_permanent' => ['spam-stopgap', true],
-                // Not closed.
-                'open' => ['hello-dolly', false],
-            ];
+        it('does not request or cache an empty slug', function (string $slug): void {
+            $httpDownloader = Mockery::mock(HttpDownloader::class);
+            $cache = Mockery::mock(CacheInterface::class);
+            $client = new Client($httpDownloader, $this->loop(), $cache);
+
+            expect($client->isClosed($slug))->toBeFalse();
+        })->with(['', '      ']);
+
+        it('reads from cache without making a request', function (bool $expected): void {
+            $httpDownloader = Mockery::mock(HttpDownloader::class);
+            $cache = Mockery::mock(CacheInterface::class);
+            $cache->expects()->read()->with('example-plugin')->andReturn($expected);
+            $client = new Client($httpDownloader, $this->loop(), $cache);
+
+            expect($client->isClosed('example-plugin'))->toBe($expected);
+        })->with([true, false]);
+    });
+
+    describe('::warmCache()', function (): void {
+        it('requests nonempty uncached slugs and populates the cache', function (): void {
+            $error = new TransportException;
+            $error->setStatusCode(404);
+            $error->setResponse('{"error":"closed"}');
+
+            $httpDownloader = Mockery::mock(HttpDownloader::class);
+            $httpDownloader->expects()
+                ->add('https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=closed', Mockery::any())
+                ->andReturn(reject($error));
+            $httpDownloader->expects()
+                ->add('https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&slug=open', Mockery::any())
+                ->andReturn(resolve(new Response(['url' => 'https://api.wordpress.org'], 200, [], '{}')));
+
+            $cache = new ArrayCache;
+            $cache->write('cached', true);
+            $client = new Client($httpDownloader, $this->loop(), $cache);
+            $client->warmCache(' closed ', '', '  ', 'open', 'cached');
+
+            expect($cache->read('closed'))->toBeTrue()
+                ->and($cache->read('open'))->toBeFalse()
+                ->and($cache->read('cached'))->toBeTrue();
         });
-
-        it('returns true if and only if the plugin is closed', function (string $slug, bool $expected): void {
-            $loop = $this->loop();
-            $httpDownloader = $loop->getHttpDownloader();
-            $cache = Mockery::spy(CacheInterface::class);
-
-            $client = new Client($httpDownloader, $loop, $cache);
-
-            $actual = $client->isClosed($slug);
-
-            expect($actual)->toBe($expected);
-        })->with('many_slugs');
-
-        it('writes to cache', function (string $slug, bool $expected): void {
-            $loop = $this->loop();
-            $httpDownloader = $loop->getHttpDownloader();
-            $cache = Mockery::spy(CacheInterface::class);
-
-            $client = new Client($httpDownloader, $loop, $cache);
-
-            $actual = $client->isClosed($slug);
-
-            $cache->shouldHaveReceived('write', [$slug, $expected]);
-            expect($actual)->toBe($expected);
-        })->with('slugs');
-
-        it('reads from cache', function (string $slug, bool $expected): void {
-            $loop = $this->loop();
-            $httpDownloader = Mockery::spy(HttpDownloader::class);
-
-            $cache = Mockery::spy(CacheInterface::class);
-            $cache->expects()
-                ->read()
-                ->with($slug)
-                ->andReturn($expected);
-
-            $client = new Client($httpDownloader, $loop, $cache);
-
-            $actual = $client->isClosed($slug);
-
-            $httpDownloader->shouldNotHaveReceived('add');
-            $cache->shouldNotHaveReceived('write');
-            expect($actual)->toBe($expected);
-        })->with('slugs');
     });
 });

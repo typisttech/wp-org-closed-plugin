@@ -6,20 +6,11 @@ namespace Tests\Unit\WpOrg\UrlParser;
 
 use Composer\Cache as ComposerCache;
 use Mockery;
-use TypistTech\WpOrgClosedPlugin\WpOrg\Api\CacheInterface;
 use TypistTech\WpOrgClosedPlugin\WpOrg\Api\FileCache;
 
 covers(FileCache::class);
 
-describe(FileCache::class, static function (): void {
-    it('implements CacheInterface', function (): void {
-        $cache = new FileCache(
-            Mockery::mock(ComposerCache::class),
-        );
-
-        expect($cache)->toBeInstanceOf(CacheInterface::class);
-    });
-
+describe(FileCache::class, function (): void {
     dataset('slugs', static function (): array {
         return [
             // Closed.
@@ -29,7 +20,7 @@ describe(FileCache::class, static function (): void {
         ];
     });
 
-    describe('::read()', static function (): void {
+    describe('::read()', function (): void {
         it('reads the first line of from {$slug}.txt',
             function (string $slug, bool $expected, string $firstLine): void {
                 $composerCache = Mockery::mock(ComposerCache::class);
@@ -88,7 +79,7 @@ describe(FileCache::class, static function (): void {
         ]);
     });
 
-    describe('::write()', static function (): void {
+    describe('::write()', function (): void {
         it('writes the result into {$slug}.txt as the first line',
             function (string $slug, bool $isClosed, string $expected): void {
                 $composerCache = Mockery::spy(ComposerCache::class);

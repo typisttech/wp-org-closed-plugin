@@ -226,3 +226,9 @@ For the full license, see [LICENSE](./LICENSE).
 ## Contribute
 
 Feedbacks / bug reports / pull requests are welcome.
+
+Run PHP tests with `composer pest`. The `live` group checks the WordPress.org
+API and requires network access. To run deterministic tests only, use
+`composer pest -- --exclude-group=live`; to run the live checks separately,
+use `composer pest -- --group=live`. Run static analysis with
+`composer phpstan -- analyse`.

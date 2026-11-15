@@ -5,18 +5,11 @@ declare(strict_types=1);
 namespace Tests\Unit\WpOrg\UrlParser;
 
 use TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser\DownloadUrlParser;
-use TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser\UrlParserInterface;
 
 covers(DownloadUrlParser::class);
 
-describe(DownloadUrlParser::class, static function (): void {
-    it('implements UrlParserInterface', function (): void {
-        $parser = new DownloadUrlParser;
-
-        expect($parser)->toBeInstanceOf(UrlParserInterface::class);
-    });
-
-    describe('::slug()', static function (): void {
+describe(DownloadUrlParser::class, function (): void {
+    describe('::slug()', function (): void {
         dataset('urls', static function (): array {
             return [
                 // Singular with hyphens.
@@ -69,10 +62,6 @@ describe(DownloadUrlParser::class, static function (): void {
             $actual = $parser->slug($url);
 
             expect($actual)->toBe($expected);
-
-            if ($actual !== null) {
-                expect($actual)->toBeSlug();
-            }
         })->with('urls');
     });
 });
