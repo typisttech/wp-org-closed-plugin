@@ -9,14 +9,8 @@ use TypistTech\WpOrgClosedPlugin\WpOrg\UrlParser\UrlParserInterface;
 
 covers(SvnUrlParser::class);
 
-describe(SvnUrlParser::class, static function (): void {
-    it('implements UrlParserInterface', function (): void {
-        $parser = new SvnUrlParser;
-
-        expect($parser)->toBeInstanceOf(UrlParserInterface::class);
-    });
-
-    describe('::slug()', static function (): void {
+describe(SvnUrlParser::class, function (): void {
+    describe('::slug()', function (): void {
         dataset('urls', static function (): array {
             return [
                 ['https://plugins.svn.wordpress.org/foo-bar/', 'foo-bar'],

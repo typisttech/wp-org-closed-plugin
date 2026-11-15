@@ -36,6 +36,7 @@
         "laravel/pao": "^1.1",
         "mockery/mockery": "^1.6",
         "pestphp/pest": "^5.3",
+        "pestphp/pest-plugin-phpstan": "^5.3",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-deprecation-rules": "^2.0",

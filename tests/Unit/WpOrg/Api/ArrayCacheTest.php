@@ -9,14 +9,8 @@ use TypistTech\WpOrgClosedPlugin\WpOrg\Api\CacheInterface;
 
 covers(ArrayCache::class);
 
-describe(ArrayCache::class, static function (): void {
-    it('implements CacheInterface', function (): void {
-        $cache = new ArrayCache;
-
-        expect($cache)->toBeInstanceOf(CacheInterface::class);
-    });
-
-    describe('::read()', static function (): void {
+describe(ArrayCache::class, function (): void {
+    describe('::read()', function (): void {
         test('hit', function (bool $expected): void {
             $cache = new ArrayCache;
             $cache->write('foo', $expected);
@@ -35,7 +29,7 @@ describe(ArrayCache::class, static function (): void {
         });
     });
 
-    describe('::write()', static function (): void {
+    describe('::write()', function (): void {
         it('stores', function (bool $isClosed): void {
             $cache = new ArrayCache;
 

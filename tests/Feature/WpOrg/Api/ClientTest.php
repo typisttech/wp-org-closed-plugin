@@ -11,8 +11,8 @@ use TypistTech\WpOrgClosedPlugin\WpOrg\Api\Client;
 
 covers(Client::class);
 
-describe(Client::class, static function (): void {
-    describe('::isClosed()', static function (): void {
+describe(Client::class, function (): void {
+    describe('::isClosed()', function (): void {
         dataset('many_slugs', static function (): array {
             return [
                 // Closed.

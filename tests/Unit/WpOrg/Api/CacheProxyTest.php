@@ -10,17 +10,8 @@ use TypistTech\WpOrgClosedPlugin\WpOrg\Api\CacheProxy;
 
 covers(CacheProxy::class);
 
-describe(CacheProxy::class, static function (): void {
-    it('implements CacheInterface', function (): void {
-        $cache = new CacheProxy(
-            Mockery::mock(CacheInterface::class),
-            Mockery::mock(CacheInterface::class),
-        );
-
-        expect($cache)->toBeInstanceOf(CacheInterface::class);
-    });
-
-    describe('::read()', static function (): void {
+describe(CacheProxy::class, function (): void {
+    describe('::read()', function (): void {
         test('when fast hits', function (bool $fastValue): void {
             $fast = Mockery::spy(CacheInterface::class);
             $fast->expects()
@@ -72,7 +63,7 @@ describe(CacheProxy::class, static function (): void {
         });
     });
 
-    describe('::write()', static function (): void {
+    describe('::write()', function (): void {
         it('forwards write to both fast and slow', function (bool $isClosed): void {
             $fast = Mockery::spy(CacheInterface::class);
             $slow = Mockery::spy(CacheInterface::class);
