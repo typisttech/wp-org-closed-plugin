@@ -11,6 +11,7 @@ readonly class CacheProxy implements CacheInterface
         private CacheInterface $slow,
     ) {}
 
+    #[\Override]
     public function read(string $slug): ?bool
     {
         $result = $this->fast->read($slug);
@@ -26,6 +27,7 @@ readonly class CacheProxy implements CacheInterface
         return $result;
     }
 
+    #[\Override]
     public function write(string $slug, bool $isClosed): void
     {
         $this->fast->write($slug, $isClosed);

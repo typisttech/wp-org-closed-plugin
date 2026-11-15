@@ -15,6 +15,7 @@ readonly class MultiUrlParser implements UrlParserInterface
         $this->urlParsers = $urlParsers;
     }
 
+    #[\Override]
     public function slug(string $url): ?string
     {
         foreach ($this->urlParsers as $urlParser) {

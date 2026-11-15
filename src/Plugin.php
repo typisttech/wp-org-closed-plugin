@@ -28,6 +28,7 @@ class Plugin implements EventSubscriberInterface, PluginInterface
 
     private WarnLocked $warnLocked;
 
+    #[\Override]
     public function activate(Composer $composer, IOInterface $io): void
     {
         $this->markClosedAsAbandoned = MarkClosedPluginAsAbandoned::create($composer, $io);
@@ -35,16 +36,19 @@ class Plugin implements EventSubscriberInterface, PluginInterface
         $this->warnLocked = new WarnLocked($io);
     }
 
+    #[\Override]
     public function deactivate(Composer $composer, IOInterface $io): void
     {
         // Do nothing.
     }
 
+    #[\Override]
     public function uninstall(Composer $composer, IOInterface $io): void
     {
         // Do nothing.
     }
 
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [

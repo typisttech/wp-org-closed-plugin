@@ -15,6 +15,7 @@ readonly class SvnUrlParser implements UrlParserInterface
 {
     private const string HOST = 'plugins.svn.wordpress.org';
 
+    #[\Override]
     public function slug(string $url): ?string
     {
         $host = parse_url($url, PHP_URL_HOST);
