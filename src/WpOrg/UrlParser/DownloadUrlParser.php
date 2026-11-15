@@ -19,6 +19,7 @@ readonly class DownloadUrlParser implements UrlParserInterface
 {
     private const string HOST = 'downloads.wordpress.org';
 
+    #[\Override]
     public function slug(string $url): ?string
     {
         $host = parse_url($url, PHP_URL_HOST);

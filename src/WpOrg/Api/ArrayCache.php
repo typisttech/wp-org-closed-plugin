@@ -9,11 +9,13 @@ class ArrayCache implements CacheInterface
     /** @var array<string, bool> */
     private array $data = [];
 
+    #[\Override]
     public function read(string $slug): ?bool
     {
         return $this->data[$slug] ?? null;
     }
 
+    #[\Override]
     public function write(string $slug, bool $isClosed): void
     {
         $this->data[$slug] = $isClosed;

@@ -64,11 +64,17 @@ describe(DownloadUrlParser::class, static function (): void {
         });
 
         it('parses the plugin slug', function (string $url, ?string $expected): void {
+            expect(parse_url($url, PHP_URL_HOST))->toBeHostname();
+
             $parser = new DownloadUrlParser;
 
             $actual = $parser->slug($url);
 
             expect($actual)->toBe($expected);
+
+            if ($actual !== null) {
+                expect($actual)->toBeSlug();
+            }
         })->with('urls');
     });
 });
