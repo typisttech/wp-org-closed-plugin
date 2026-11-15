@@ -15,6 +15,7 @@ readonly class FileCache implements CacheInterface
         private ComposerCache $cache,
     ) {}
 
+    #[\Override]
     public function read(string $slug): ?bool
     {
         $key = $this->key($slug);
@@ -34,6 +35,7 @@ readonly class FileCache implements CacheInterface
         };
     }
 
+    #[\Override]
     public function write(string $slug, bool $isClosed): void
     {
         if ($this->cache->isReadOnly()) {
